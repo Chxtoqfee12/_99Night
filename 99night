@@ -1,0 +1,99 @@
+-- ==========================
+-- โหลด OrionLib
+-- ==========================
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/Chxtoqfee12/Plant-brainrot/refs/heads/main/lib'))()
+
+-- ==========================
+-- สร้าง Window
+-- ==========================
+local Window = OrionLib:MakeWindow({Name = "CHX Auto Farm", HidePremium = true, SaveConfig = true, ConfigFolder = "CHXConfig"})
+
+-- ==========================
+-- สร้าง Tab
+-- ==========================
+local Tab = Window:MakeTab({Name = "Auto Farm", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+
+-- ==========================
+-- ฟังก์ชันดึงไอเท็มทั้งหมดในแมพ
+-- ==========================
+local function PullAllItems()
+    local player = game.Players.LocalPlayer
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local itemFolder = workspace:FindFirstChild("item") or workspace:FindFirstChild("Items") or workspace:FindFirstChild("Drops")
+    if not itemFolder then return end
+
+    for _, obj in ipairs(itemFolder:GetDescendants()) do
+        local target = nil
+        if obj:IsA("BasePart") then
+            target = obj
+        elseif obj:IsA("Model") then
+            target = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+        end
+        if target and target:IsDescendantOf(workspace) then
+            pcall(function()
+                target.CFrame = hrp.CFrame + Vector3.new(0,3,0)
+            end)
+        end
+    end
+end
+
+-- ==========================
+-- ฟังก์ชันดึงเนื้อ Morsel
+-- ==========================
+local function PullMorsel()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    local itemsFolder = workspace:WaitForChild("Items")
+    for _, item in pairs(itemsFolder:GetChildren()) do
+        if item.Name == "Morsel" then
+            local Remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("RequestStartDraggingItem")
+            Remote:FireServer(item)
+            task.wait(0.1)
+            local primary = item:FindFirstChild("Handle") or item.PrimaryPart
+            if primary then
+                primary.CFrame = hrp.CFrame + Vector3.new(0,2,0)
+            end
+        end
+    end
+end
+
+-- ==========================
+-- ฟังก์ชัน Auto Attack + Pull Morsel
+-- ==========================
+local function AutoAttackEnemies()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    local weapon = player:WaitForChild("Inventory"):WaitForChild("Old Axe")
+    local enemiesFolder = workspace:WaitForChild("Characters")
+    local DamageEvent = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("ToolDamageObject")
+
+    for _, enemy in ipairs(enemiesFolder:GetChildren()) do
+        if enemy:FindFirstChild("HumanoidRootPart") then
+            local enemyPos = enemy.HumanoidRootPart.CFrame
+            local key = "13_3912445182" -- key สำหรับตีศัตรู
+            pcall(function()
+                DamageEvent:InvokeServer(enemy, weapon, key, enemyPos)
+            end)
+            task.wait(0.2) -- ปรับหน่วงเวลาเพื่อไม่ให้เซิร์ฟเวอร์ block
+        end
+    end
+
+    -- หลังตีเสร็จ ดึงเนื้อ Morsel
+    PullMorsel()
+end
+
+-- ==========================
+-- ปุ่มใน Tab
+-- ==========================
+Tab:AddButton({Name = "Pull All Items", Callback = PullAllItems})
+Tab:AddButton({Name = "Pull Morsel", Callback = PullMorsel})
+Tab:AddButton({Name = "Auto Attack + Pull Morsel", Callback = AutoAttackEnemies})
+
+-- ==========================
+-- แสดง UI
+-- ==========================
+OrionLib:Init()
