@@ -6,92 +6,253 @@ local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/Chxt
 -- ==========================
 -- สร้าง Window
 -- ==========================
-local Window = OrionLib:MakeWindow({Name = "CHX Auto Farm", HidePremium = true, SaveConfig = true, ConfigFolder = "CHXConfig"})
+local Window = OrionLib:MakeWindow({Name = "CHX Auto Farm Full", HidePremium = true, SaveConfig = true, ConfigFolder = "CHXConfig"})
 
 -- ==========================
 -- สร้าง Tab
 -- ==========================
-local Tab = Window:MakeTab({Name = "Auto Farm", Icon = "rbxassetid://4483345998", PremiumOnly = false})
+local Tab = Window:MakeTab({Name = "Auto Farm Toggle", Icon = "rbxassetid://4483345998", PremiumOnly = false})
 
 -- ==========================
--- ฟังก์ชันดึงไอเท็มทั้งหมดในแมพ
+-- ตัวแปร Toggle / Dropdown
 -- ==========================
-local function PullAllItems()
-    local player = game.Players.LocalPlayer
-    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+local PullItemsAuto = false
+local AutoAttackBunny = false
+local AutoAttackWolf = false
+local PullLootToggle = false
+local SelectedLoot = {} -- ไอเทมที่เราเลือก
+local FloatToggle = false
+local Platform = nil
+local FloatHeight = 10
 
-    local itemFolder = workspace:FindFirstChild("item") or workspace:FindFirstChild("Items") or workspace:FindFirstChild("Drops")
-    if not itemFolder then return end
+-- ==========================
+-- ตัวแปรทั่วไป
+-- ==========================
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HRP = Character:WaitForChild("HumanoidRootPart")
+local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
+local StartDrag = RemoteEvents:WaitForChild("RequestStartDraggingItem")
+local StopDrag = RemoteEvents:WaitForChild("StopDraggingItem")
+local DamageEvent = RemoteEvents:WaitForChild("ToolDamageObject")
+local ItemsFolder = workspace:WaitForChild("Items")
+local EnemiesFolder = workspace:WaitForChild("Characters")
+local weapon = LocalPlayer:WaitForChild("Inventory"):WaitForChild("Old Axe")
 
-    for _, obj in ipairs(itemFolder:GetDescendants()) do
-        local target = nil
-        if obj:IsA("BasePart") then
-            target = obj
-        elseif obj:IsA("Model") then
-            target = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
-        end
-        if target and target:IsDescendantOf(workspace) then
-            pcall(function()
-                target.CFrame = hrp.CFrame + Vector3.new(0,3,0)
-            end)
+-- ==========================
+-- ฟังก์ชัน Pull Items Sequential (เฉพาะที่เลือก)
+-- ==========================
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if PullItemsAuto and #SelectedLoot > 0 then
+            for _, lootKeyword in ipairs(SelectedLoot) do
+                for _, item in ipairs(ItemsFolder:GetChildren()) do
+                    if string.find(item.Name:lower(), lootKeyword:lower()) and item:IsDescendantOf(workspace) then
+                        StartDrag:FireServer({item})
+                        task.wait(0.05)
+                        local primary = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or item
+                        if primary then
+                            pcall(function()
+                                primary.CFrame = HRP.CFrame + Vector3.new(0,3,0)
+                            end)
+                        end
+                        task.wait(0.05)
+                        StopDrag:FireServer({item})
+                        task.wait(0.1)
+                    end
+                end
+            end
+        else
+            task.wait(0.2)
         end
     end
-end
+end)
 
 -- ==========================
--- ฟังก์ชันดึงเนื้อ Morsel
+-- ฟังก์ชัน Auto Attack Bunny
 -- ==========================
-local function PullMorsel()
-    local player = game.Players.LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-    local itemsFolder = workspace:WaitForChild("Items")
-    for _, item in pairs(itemsFolder:GetChildren()) do
-        if item.Name == "Morsel" then
-            local Remote = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("RequestStartDraggingItem")
-            Remote:FireServer(item)
-            task.wait(0.1)
-            local primary = item:FindFirstChild("Handle") or item.PrimaryPart
-            if primary then
-                primary.CFrame = hrp.CFrame + Vector3.new(0,2,0)
+task.spawn(function()
+    while true do
+        task.wait(0.001)
+        if AutoAttackBunny then
+            for _, enemy in ipairs(EnemiesFolder:GetChildren()) do
+                if enemy.Name:lower():find("bunny") and enemy:FindFirstChild("HumanoidRootPart") then
+                    pcall(function()
+                        DamageEvent:InvokeServer(enemy, weapon, "12_3912445182", enemy.HumanoidRootPart.CFrame)
+                    end)
+                end
             end
         end
     end
-end
+end)
 
 -- ==========================
--- ฟังก์ชัน Auto Attack + Pull Morsel
+-- ฟังก์ชัน Auto Attack Wolf
 -- ==========================
-local function AutoAttackEnemies()
-    local player = game.Players.LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-    local weapon = player:WaitForChild("Inventory"):WaitForChild("Old Axe")
-    local enemiesFolder = workspace:WaitForChild("Characters")
-    local DamageEvent = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("ToolDamageObject")
-
-    for _, enemy in ipairs(enemiesFolder:GetChildren()) do
-        if enemy:FindFirstChild("HumanoidRootPart") then
-            local enemyPos = enemy.HumanoidRootPart.CFrame
-            local key = "13_3912445182" -- key สำหรับตีศัตรู
-            pcall(function()
-                DamageEvent:InvokeServer(enemy, weapon, key, enemyPos)
-            end)
-            task.wait(0.2) -- ปรับหน่วงเวลาเพื่อไม่ให้เซิร์ฟเวอร์ block
+task.spawn(function()
+    while true do
+        task.wait(0.001)
+        if AutoAttackWolf then
+            for _, enemy in ipairs(EnemiesFolder:GetChildren()) do
+                if enemy.Name:lower():find("wolf") and enemy:FindFirstChild("HumanoidRootPart") then
+                    pcall(function()
+                        DamageEvent:InvokeServer(enemy, weapon, "13_3912445182", enemy.HumanoidRootPart.CFrame)
+                    end)
+                end
+            end
         end
     end
+end)
 
-    -- หลังตีเสร็จ ดึงเนื้อ Morsel
-    PullMorsel()
+-- ==========================
+-- ฟังก์ชัน Pull Loot (ตาม Dropdown MultiSelect)
+-- ==========================
+-- ==========================
+-- ฟังก์ชัน Pull All Items Sequential (เฉพาะไอเทมที่เลือก)
+-- ==========================
+task.spawn(function()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local LocalPlayer = Players.LocalPlayer
+    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local HRP = Character:WaitForChild("HumanoidRootPart")
+    local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
+    local StartDrag = RemoteEvents:WaitForChild("RequestStartDraggingItem")
+    local StopDrag = RemoteEvents:WaitForChild("StopDraggingItem")
+    local ItemsFolder = workspace:WaitForChild("Items")
+
+    -- กำหนด Dropdown หรือ List ของไอเทมที่ต้องการดึง
+    local SelectedLoot = {}
+    if LootOption == "Morsel Bunny" then
+        SelectedLoot = {"Morsel", "Bunny Foot"}
+    elseif LootOption == "Loot Wolf" then
+        SelectedLoot = {"Wolf Pelt", "Steak"}
+    elseif LootOption == "Both" then
+        SelectedLoot = {"Morsel", "Bunny Foot", "Wolf Pelt", "Steak"}
+    end
+
+    while true do
+        task.wait(0.1)
+        if PullItemsAuto then
+            for _, item in ipairs(ItemsFolder:GetChildren()) do
+                local shouldPull = false
+                for _, keyword in ipairs(SelectedLoot) do
+                    if string.find(item.Name, keyword) then
+                        shouldPull = true
+                        break
+                    end
+                end
+
+                if shouldPull and item:IsDescendantOf(workspace) then
+                    -- เริ่มลาก
+                    StartDrag:FireServer({item})
+                    task.wait(0.05)
+
+                    local primary = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or item
+                    if primary then
+                        pcall(function()
+                            primary.CFrame = HRP.CFrame + Vector3.new(0,3,0)
+                        end)
+                    end
+
+                    task.wait(0.05)
+                    -- ปล่อยไอเทม
+                    StopDrag:FireServer({item})
+                    task.wait(0.1)
+                end
+            end
+        end
+    end
+end)
+
+
+-- ==========================
+-- ฟังก์ชัน Float Platform
+-- ==========================
+local function CreatePlatformAndStand()
+    if not Platform then
+        Platform = Instance.new("Part")
+        Platform.Size = Vector3.new(6, 1, 6)
+        Platform.Anchored = true
+        Platform.CanCollide = true
+        Platform.Material = Enum.Material.Neon
+        Platform.Color = Color3.fromRGB(0, 255, 255)
+        Platform.CFrame = CFrame.new(HRP.Position.X, HRP.Position.Y + FloatHeight, HRP.Position.Z)
+        Platform.Parent = workspace
+        HRP.CFrame = Platform.CFrame + Vector3.new(0,3,0)
+        Character:WaitForChild("Humanoid").PlatformStand = true
+    end
+end
+
+local function RemovePlatform()
+    if Platform then
+        Platform:Destroy()
+        Platform = nil
+        Character:WaitForChild("Humanoid").PlatformStand = false
+    end
 end
 
 -- ==========================
--- ปุ่มใน Tab
+-- UI Toggle / Dropdown
 -- ==========================
-Tab:AddButton({Name = "Pull All Items", Callback = PullAllItems})
-Tab:AddButton({Name = "Pull Morsel", Callback = PullMorsel})
-Tab:AddButton({Name = "Auto Attack + Pull Morsel", Callback = AutoAttackEnemies})
+Tab:AddToggle({
+    Name = "Pull All Items Sequential",
+    Default = false,
+    Callback = function(Value)
+        PullItemsAuto = Value
+    end
+})
+
+Tab:AddToggle({
+    Name = "Auto Attack Bunny",
+    Default = false,
+    Callback = function(Value)
+        AutoAttackBunny = Value
+    end
+})
+
+Tab:AddToggle({
+    Name = "Auto Attack Wolf",
+    Default = false,
+    Callback = function(Value)
+        AutoAttackWolf = Value
+    end
+})
+
+Tab:AddToggle({
+    Name = "Pull Loot",
+    Default = false,
+    Callback = function(Value)
+        PullLootToggle = Value
+    end
+})
+
+Tab:AddDropdown({
+    Name = "Select Loot to Pull",
+    Default = {},
+    Options = {"Morsel", "Bunny Foot", "Wolf Pelt", "Steak"},
+    MultiSelect = true,
+    Callback = function(Value)
+        SelectedLoot = Value -- ใช้ตรงนี้เลย
+    end
+})
+
+
+Tab:AddToggle({
+    Name = "Float Platform 10 Stud",
+    Default = false,
+    Callback = function(Value)
+        FloatToggle = Value
+        if FloatToggle then
+            CreatePlatformAndStand()
+        else
+            RemovePlatform()
+        end
+    end
+})
 
 -- ==========================
 -- แสดง UI
