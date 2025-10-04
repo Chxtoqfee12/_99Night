@@ -17,17 +17,13 @@ local Tab = Window:MakeTab({Name = "Auto Farm Toggle", Icon = "rbxassetid://4483
 -- ตัวแปร Toggle / Dropdown
 -- ==========================
 local PullItemsAuto = false
+local SelectedItem = "Morsel" -- ไอเทมที่เลือก
 local AutoAttackBunny = false
 local AutoAttackWolf = false
-local PullLootToggle = false
-local SelectedLoot = {} -- ไอเทมที่เราเลือก
 local FloatToggle = false
 local Platform = nil
 local FloatHeight = 10
 
--- ==========================
--- ตัวแปรทั่วไป
--- ==========================
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
@@ -42,31 +38,32 @@ local EnemiesFolder = workspace:WaitForChild("Characters")
 local weapon = LocalPlayer:WaitForChild("Inventory"):WaitForChild("Old Axe")
 
 -- ==========================
--- ฟังก์ชัน Pull Items Sequential (เฉพาะที่เลือก)
+-- ฟังก์ชัน Pull Items Sequential (ทีละอัน)
 -- ==========================
 task.spawn(function()
     while true do
         task.wait(0.1)
-        if PullItemsAuto and #SelectedLoot > 0 then
-            for _, lootKeyword in ipairs(SelectedLoot) do
-                for _, item in ipairs(ItemsFolder:GetChildren()) do
-                    if string.find(item.Name:lower(), lootKeyword:lower()) and item:IsDescendantOf(workspace) then
-                        StartDrag:FireServer({item})
-                        task.wait(0.05)
-                        local primary = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or item
-                        if primary then
-                            pcall(function()
-                                primary.CFrame = HRP.CFrame + Vector3.new(0,3,0)
-                            end)
-                        end
-                        task.wait(0.05)
-                        StopDrag:FireServer({item})
-                        task.wait(0.1)
+        if PullItemsAuto and SelectedItem ~= "None" then
+            for _, item in ipairs(ItemsFolder:GetChildren()) do
+                if item:IsDescendantOf(workspace) and string.find(item.Name:lower(), SelectedItem:lower()) then
+                    -- เริ่มลาก
+                    StartDrag:FireServer({item})
+                    task.wait(0.05)
+
+                    local primary = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or item
+                    if primary then
+                        pcall(function()
+                            -- ขยับมาหาเรา
+                            primary.CFrame = HRP.CFrame + Vector3.new(0,3,0)
+                        end)
                     end
+
+                    task.wait(0.05)
+                    -- ปล่อยไอเทมเมื่อมาถึงตัวเรา
+                    StopDrag:FireServer({item})
+                    task.wait(0.1)
                 end
             end
-        else
-            task.wait(0.2)
         end
     end
 end)
@@ -108,68 +105,6 @@ task.spawn(function()
 end)
 
 -- ==========================
--- ฟังก์ชัน Pull Loot (ตาม Dropdown MultiSelect)
--- ==========================
--- ==========================
--- ฟังก์ชัน Pull All Items Sequential (เฉพาะไอเทมที่เลือก)
--- ==========================
-task.spawn(function()
-    local Players = game:GetService("Players")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local LocalPlayer = Players.LocalPlayer
-    local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local HRP = Character:WaitForChild("HumanoidRootPart")
-    local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
-    local StartDrag = RemoteEvents:WaitForChild("RequestStartDraggingItem")
-    local StopDrag = RemoteEvents:WaitForChild("StopDraggingItem")
-    local ItemsFolder = workspace:WaitForChild("Items")
-
-    -- กำหนด Dropdown หรือ List ของไอเทมที่ต้องการดึง
-    local SelectedLoot = {}
-    if LootOption == "Morsel Bunny" then
-        SelectedLoot = {"Morsel", "Bunny Foot"}
-    elseif LootOption == "Loot Wolf" then
-        SelectedLoot = {"Wolf Pelt", "Steak"}
-    elseif LootOption == "Both" then
-        SelectedLoot = {"Morsel", "Bunny Foot", "Wolf Pelt", "Steak"}
-    end
-
-    while true do
-        task.wait(0.1)
-        if PullItemsAuto then
-            for _, item in ipairs(ItemsFolder:GetChildren()) do
-                local shouldPull = false
-                for _, keyword in ipairs(SelectedLoot) do
-                    if string.find(item.Name, keyword) then
-                        shouldPull = true
-                        break
-                    end
-                end
-
-                if shouldPull and item:IsDescendantOf(workspace) then
-                    -- เริ่มลาก
-                    StartDrag:FireServer({item})
-                    task.wait(0.05)
-
-                    local primary = item:IsA("Model") and (item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")) or item
-                    if primary then
-                        pcall(function()
-                            primary.CFrame = HRP.CFrame + Vector3.new(0,3,0)
-                        end)
-                    end
-
-                    task.wait(0.05)
-                    -- ปล่อยไอเทม
-                    StopDrag:FireServer({item})
-                    task.wait(0.1)
-                end
-            end
-        end
-    end
-end)
-
-
--- ==========================
 -- ฟังก์ชัน Float Platform
 -- ==========================
 local function CreatePlatformAndStand()
@@ -199,10 +134,19 @@ end
 -- UI Toggle / Dropdown
 -- ==========================
 Tab:AddToggle({
-    Name = "Pull All Items Sequential",
+    Name = "Pull Item Sequential",
     Default = false,
     Callback = function(Value)
         PullItemsAuto = Value
+    end
+})
+
+Tab:AddDropdown({
+    Name = "Select Item to Pull",
+    Default = "Morsel",
+    Options = {"Morsel", "Steak", "Wolf Pelt", "Bunny Foot"},
+    Callback = function(Value)
+        SelectedItem = Value
     end
 })
 
@@ -223,25 +167,6 @@ Tab:AddToggle({
 })
 
 Tab:AddToggle({
-    Name = "Pull Loot",
-    Default = false,
-    Callback = function(Value)
-        PullLootToggle = Value
-    end
-})
-
-Tab:AddDropdown({
-    Name = "Select Loot to Pull",
-    Default = {},
-    Options = {"Morsel", "Bunny Foot", "Wolf Pelt", "Steak"},
-    MultiSelect = true,
-    Callback = function(Value)
-        SelectedLoot = Value -- ใช้ตรงนี้เลย
-    end
-})
-
-
-Tab:AddToggle({
     Name = "Float Platform 10 Stud",
     Default = false,
     Callback = function(Value)
@@ -258,3 +183,4 @@ Tab:AddToggle({
 -- แสดง UI
 -- ==========================
 OrionLib:Init()
+    
