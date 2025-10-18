@@ -877,7 +877,7 @@ end
 
 local Window = WindUI:CreateWindow({
     Title = "Chx Script",
-    Icon = "rbxassetid://104487529937663", 
+    Icon = "rbxassetid://131166703207122", 
     Author = "99 Night in the Forest | Free Version",
     Folder = "AxsHub",
     Size = UDim2.fromOffset(500, 350),
@@ -2361,7 +2361,7 @@ Info:Divider()
 local Owner = Info:Paragraph({
     Title = "เจ้าของหลัก",
     Desc = "@chrxstoq_fx",
-    Image = "rbxassetid://119789418015420",
+    Image = "rbxassetid://131166703207122",
     ImageSize = 30,
     Thumbnail = "",
     ThumbnailSize = 0,
