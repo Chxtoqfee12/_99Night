@@ -877,7 +877,7 @@ end
 
 local Window = WindUI:CreateWindow({
     Title = "Dual Hub",
-    Icon = "rbxassetid://136699990056915", 
+    Icon = "rbxassetid://115670808395939", 
     Author = "99 Night in the Forest | Free Version",
     Folder = "Dual Hub",
     Size = UDim2.fromOffset(500, 350),
