@@ -946,7 +946,7 @@ pcall(function()
 end)
 
 Window:EditOpenButton({
-    Title = "DYHUB - Open",
+    Title = "Chx - เปิด",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
@@ -957,61 +957,54 @@ Window:EditOpenButton({
 local Tabs = {}
 
 Tabs.Info = Window:Tab({
-    Title = "Information",
+    Title = "ข้อมูล",
     Icon = "badge-info",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 Tabs.Auto = Window:Tab({
-    Title = "Main",
+    Title = "หลัก",
     Icon = "rocket",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 Tabs.br = Window:Tab({
-    Title = "Bring",
+    Title = "นำมา",
     Icon = "package",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 Tabs.Fly = Window:Tab({
-    Title = "Player",
+    Title = "ผู้เล่น",
     Icon = "user",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 Tabs.esp = Window:Tab({
     Title = "Esp",
     Icon = "eye",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 Tabs.Tp = Window:Tab({
-    Title = "Teleport",
+    Title = "วาป",
     Icon = "map",
-    Desc = "DYHUB"
-})
-
-Tabs.More = Window:Tab({
-    Title = "Farm",
-    Icon = "crown",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 
 Tabs.Anti = Window:Tab({
-    Title = "Anti",
+    Title = "ป้องกัน",
     Icon = "shield",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 
 Tabs.Vision = Window:Tab({
-    Title = "Settings",
+    Title = "ตั้งค่า",
     Icon = "settings",
-    Desc = "DYHUB"
+    Desc = "Chx"
 })
 
 Window:SelectTab(1)
 
-
 -- ==============================
--- 🔥 AUTO UPGRADE CAMPFIRE
+-- 🔥 อัปเกรดกองไฟอัตโนมัติ
 -- ==============================
-Tabs.Auto:Section({ Title = "Aura", Icon = "star" })
+Tabs.Auto:Section({ Title = "ออร่า", Icon = "star" })
 
 Tabs.Auto:Toggle({
     Title = "Kill Aura",
@@ -1041,16 +1034,16 @@ Tabs.Auto:Toggle({
     end
 })
 
-Tabs.Auto:Section({ Title = "Auto Upgrade Campfire", Icon = "flame" })
+Tabs.Auto:Section({ Title = "อัปเกรดกองไฟอัตโนมัติ", Icon = "flame" })
 
 local selectedCampfireItems = {}
 local autoUpgradeCampfireEnabled = false
 
 Tabs.Auto:Dropdown({
-    Title = "Auto Upgrade Campfire",
-    Desc = "Choose multiple items to upgrade",
+    Title = "อัปเกรดกองไฟอัตโนมัติ",
+    Desc = "เลือกหลายรายการเพื่ออัปเกรด",
     Values = campfireFuelItems,
-    Multi = true, -- ✅ เปลี่ยนเป็น Multi Select
+    Multi = true, -- ✅ เปลี่ยนเป็นเลือกหลายรายการ
     AllowNone = true,
     Callback = function(options)
         selectedCampfireItems = options
@@ -1058,7 +1051,7 @@ Tabs.Auto:Dropdown({
 })
 
 Tabs.Auto:Toggle({
-    Title = "Auto Upgrade Campfire",
+    Title = "อัปเกรดกองไฟอัตโนมัติ",
     Value = false,
     Callback = function(checked)
         autoUpgradeCampfireEnabled = checked
@@ -1082,18 +1075,18 @@ Tabs.Auto:Toggle({
 })
 
 -- ==============================
--- ⚙️ AUTO SCRAP ITEMS
+-- ⚙️ สลายไอเท็มอัตโนมัติ
 -- ==============================
-Tabs.Auto:Section({ Title = "Auto Scrap Items", Icon = "cog" })
+Tabs.Auto:Section({ Title = "สลายไอเท็มอัตโนมัติ", Icon = "cog" })
 
 local selectedScrapItems = {}
 local autoScrapItemsEnabled = false
 
 Tabs.Auto:Dropdown({
-    Title = "Auto Scrap Items",
-    Desc = "Choose multiple junk items",
+    Title = "สลายไอเท็มอัตโนมัติ",
+    Desc = "เลือกหลายของขยะ",
     Values = scrapjunkItems,
-    Multi = true, -- ✅ เปลี่ยนเป็น Multi Select
+    Multi = true, -- ✅ เปลี่ยนเป็นเลือกหลายรายการ
     AllowNone = true,
     Callback = function(options)
         selectedScrapItems = options
@@ -1101,7 +1094,7 @@ Tabs.Auto:Dropdown({
 })
 
 Tabs.Auto:Toggle({
-    Title = "Auto Scrap Items",
+    Title = "สลายไอเท็มอัตโนมัติ",
     Value = false,
     Callback = function(checked)
         autoScrapItemsEnabled = checked
@@ -1124,11 +1117,10 @@ Tabs.Auto:Toggle({
     end
 })
 
-
-Tabs.Auto:Section({ Title = "Auto Cook Food", Icon = "flame" })
+Tabs.Auto:Section({ Title = "ทำอาหารอัตโนมัติ", Icon = "flame" })
 
 Tabs.Auto:Dropdown({
-    Title = "Auto Cook Food",
+    Title = "ทำอาหารอัตโนมัติ",
     Values = autocookItems,
     Multi = true,
     AllowNone = true,
@@ -1140,7 +1132,7 @@ Tabs.Auto:Dropdown({
 })
 
 Tabs.Auto:Toggle({
-    Title = "Auto Cook Food",
+    Title = "ทำอาหารอัตโนมัติ",
     Value = false,
     Callback = function(state)
         autoCookEnabled = state
@@ -1164,10 +1156,11 @@ coroutine.wrap(function()
     end
 end)()
 
-Tabs.Tp:Section({ Title = "Scan Map", Icon = "map" })
+
+Tabs.Tp:Section({ Title = "สแกนแผนที่", Icon = "map" })
 
 Tabs.Tp:Toggle({
-    Title = "Scan Map (Essential)",
+    Title = "สแกนแผนที่ (จำเป็น)",
     Default = false,
     Callback = function(state)
         scan_map = state
@@ -1236,10 +1229,10 @@ Tabs.Tp:Toggle({
     end
 })
 
-Tabs.Tp:Section({ Title = "Teleport", Icon = "map" })
+Tabs.Tp:Section({ Title = "วาป", Icon = "map" })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Campfire",
+    Title = "วาปไปกองไฟ",
     Locked = false,
     Callback = function()
         tp1()
@@ -1247,7 +1240,7 @@ Tabs.Tp:Button({
 })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Stronghold",
+    Title = "วาปไปป้อมปราการ",
     Locked = false,
     Callback = function()
         tp2()
@@ -1255,7 +1248,7 @@ Tabs.Tp:Button({
 })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Safe Zone",
+    Title = "วาปไปโซนปลอดภัย",
     Callback = function()
         if not workspace:FindFirstChild("SafeZonePart") then
             local createpart = Instance.new("Part")
@@ -1276,7 +1269,7 @@ Tabs.Tp:Button({
 })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Trader (Bunny Foot)",
+    Title = "วาปไปพ่อค้า (Bunny Foot)",
     Callback = function()
         local pos = Vector3.new(-37.08, 3.98, -16.33)
         local player = game:GetService("Players").LocalPlayer
@@ -1286,10 +1279,10 @@ Tabs.Tp:Button({
     end
 })
 
-Tabs.Tp:Section({ Title = "Tree", Icon = "tree-deciduous" })
+Tabs.Tp:Section({ Title = "ต้นไม้", Icon = "tree-deciduous" })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Random Tree",
+    Title = "วาปไปต้นไม้สุ่ม",
     Callback = function()
         local Players = game:GetService("Players")
         local player = Players.LocalPlayer
@@ -1323,10 +1316,10 @@ Tabs.Tp:Button({
     end
 })
 
-Tabs.Tp:Section({ Title = "Children", Icon = "eye" })
+Tabs.Tp:Section({ Title = "เด็ก", Icon = "eye" })
 
 local MobDropdown = Tabs.Tp:Dropdown({
-    Title = "Select Child",
+    Title = "เลือกเด็ก",
     Values = currentMobNames,
     Multi = false,
     AllowNone = true,
@@ -1336,7 +1329,7 @@ local MobDropdown = Tabs.Tp:Dropdown({
 })
 
 Tabs.Tp:Button({
-    Title = "Refresh List",
+    Title = "รีเฟรชรายการ",
     Locked = false,
     Callback = function()
         currentMobs, currentMobNames = getMobs()
@@ -1345,13 +1338,13 @@ Tabs.Tp:Button({
             MobDropdown:Refresh(currentMobNames)
         else
             selectedMob = nil
-            MobDropdown:Refresh({ "No child found" })
+            MobDropdown:Refresh({ "ไม่พบเด็ก" })
         end
     end
 })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Child",
+    Title = "วาปไปเด็ก",
     Locked = false,
     Callback = function()
         if selectedMob and currentMobs then
@@ -1374,11 +1367,10 @@ Tabs.Tp:Button({
     end
 })
 
-
-Tabs.Tp:Section({ Title = "Chest", Icon = "box" })
+Tabs.Tp:Section({ Title = "หีบ", Icon = "box" })
 
 local ChestDropdown = Tabs.Tp:Dropdown({
-    Title = "Select Chest",
+    Title = "เลือกหีบ",
     Values = currentChestNames,
     Multi = false,
     AllowNone = true,
@@ -1388,7 +1380,7 @@ local ChestDropdown = Tabs.Tp:Dropdown({
 })
 
 Tabs.Tp:Button({
-    Title = "Refresh List",
+    Title = "รีเฟรชรายการ",
     Locked = false,
     Callback = function()
         currentChests, currentChestNames = getChests()
@@ -1397,13 +1389,13 @@ Tabs.Tp:Button({
             ChestDropdown:Refresh(currentChestNames)
         else
             selectedChest = nil
-            ChestDropdown:Refresh({ "No chests found" })
+            ChestDropdown:Refresh({ "ไม่พบหีบ" })
         end
     end
 })
 
 Tabs.Tp:Button({
-    Title = "Teleport to Chest",
+    Title = "วาปไปหีบ",
     Locked = false,
     Callback = function()
         if selectedChest and currentChests then
@@ -1449,15 +1441,12 @@ local function getRootObject(obj)
 end
 
 local function moveModelToCFrame(root, targetCFrame)
-    -- ย้ายทั้งโมเดลไปยัง target (ถ้ามี PrimaryPart ใช้ SetPrimaryPartCFrame)
     if root:IsA("Model") then
         local prim = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
         if prim then
-            -- ถ้ามี PrimaryPart ใช้ SetPrimaryPartCFrame ถ้ามีสิทธิ์
             if root.PrimaryPart then
                 pcall(function() root:SetPrimaryPartCFrame(targetCFrame) end)
             else
-                -- ถ้าไม่มี PrimaryPart ให้ย้าย part แรกและปรับตำแหน่งส่วนอื่นแบบ relative
                 local offset = targetCFrame.Position - prim.Position
                 for _, p in ipairs(root:GetDescendants()) do
                     if p:IsA("BasePart") then
@@ -1482,10 +1471,8 @@ local function bypassBringSystem(items, stopFlag)
         return
     end
 
-    -- ตำแหน่งกองบนหัว (ปรับ Y ได้ตามต้องการ)
     local stackPos = hrp.Position + Vector3.new(0, 5, 0)
 
-    -- เราจะค้นหาใน workspace.Items ก่อน (ถ้ามี) แล้ว fallback เป็น workspace
     local searchContainers = {}
     if Workspace:FindFirstChild("Items") then
         table.insert(searchContainers, Workspace.Items)
@@ -1505,12 +1492,10 @@ local function bypassBringSystem(items, stopFlag)
                 if not root then continue end
                 if root:IsDescendantOf(char) then continue end
 
-                -- ตรวจเฉพาะ root name ให้ตรงเป๊ะ
                 if root.Name == itemName then
                     if seenRoots[root] then continue end
                     seenRoots[root] = true
 
-                    -- หา part ที่จะย้าย (PrimaryPart หรือ BasePart แรก)
                     local mover = nil
                     if root:IsA("Model") then
                         mover = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
@@ -1519,11 +1504,9 @@ local function bypassBringSystem(items, stopFlag)
                     end
                     if not mover then continue end
 
-                    -- วาปทันทีไปกองบนหัว (ตำแหน่งเดียวกัน เพื่อไม่ให้แยก)
                     task.spawn(function()
                         local targetCFrame = CFrame.new(stackPos)
 
-                        -- ล็อกขณะย้ายเพื่อไม่ให้ฟิสิกส์รบกวน
                         pcall(function()
                             for _, p in ipairs((root:GetDescendants())) do
                                 if p:IsA("BasePart") then
@@ -1532,25 +1515,21 @@ local function bypassBringSystem(items, stopFlag)
                             end
                         end)
 
-                        -- ย้ายโมเดล/พาร์ตทั้งหมดไปตำแหน่งเดียวกัน
                         pcall(function()
                             moveModelToCFrame(root, targetCFrame)
                         end)
 
-                        -- รอแปบหนึ่ง แล้วปล่อย (restore physics)
                         task.wait(0.08)
                         pcall(function()
                             for _, p in ipairs((root:GetDescendants())) do
                                 if p:IsA("BasePart") then
                                     p.Anchored = false
-                                    -- ให้มีแรงตกเล็กน้อยเพื่อไม่ให้ลอยค้าง
                                     p.Velocity = Vector3.new(0, -6, 0)
                                 end
                             end
                         end)
                     end)
 
-                    -- รอเล็กน้อยก่อนวาปชิ้นถัดไป (เพื่อให้ทุกชิ้นมาวางที่ตำแหน่งเดียวกัน)
                     task.wait(0.05)
                 end
             end
@@ -1560,15 +1539,14 @@ local function bypassBringSystem(items, stopFlag)
     isCollecting = false
 end
 
-
 -- ===================================================
 -- 🧩 เพิ่มในแท็บ Tabs.br (UI แต่ละหมวด)
 -- ===================================================
 
-Tabs.br:Section({ Title = "Junk", Icon = "box" })
+Tabs.br:Section({ Title = "ขยะ", Icon = "box" })
 Tabs.br:Dropdown({
-	Title = "Select Junk Items",
-	Desc = "Choose items to bring",
+	Title = "เลือกของขยะ",
+	Desc = "เลือกของที่จะนำมา",
 	Values = junkItems,
 	Multi = true,
 	AllowNone = true,
@@ -1577,8 +1555,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "Bring Junk Items",
-	Desc = "Before you Bring Unlocked 1 zone first!",
+	Title = "นำของขยะ",
+	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		junkToggleEnabled = value
@@ -1604,13 +1582,10 @@ Tabs.br:Toggle({
 	end
 })
 
--- ================================
--- Fuel
--- ================================
-Tabs.br:Section({ Title = "Fuel", Icon = "flame" })
+Tabs.br:Section({ Title = "เชื้อเพลิง", Icon = "flame" })
 Tabs.br:Dropdown({
-	Title = "Select Fuel Items",
-	Desc = "Choose items to bring",
+	Title = "เลือกเชื้อเพลิง",
+	Desc = "เลือกของที่จะนำมา",
 	Values = fuelItems,
 	Multi = true,
 	AllowNone = true,
@@ -1619,8 +1594,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "Bring Fuel Items",
-	Desc = "Before you Bring Unlocked 1 Zone First!",
+	Title = "นำเชื้อเพลิง",
+	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		fuelToggleEnabled = value
@@ -1646,13 +1621,10 @@ Tabs.br:Toggle({
 	end
 })
 
--- ================================
--- Food
--- ================================
-Tabs.br:Section({ Title = "Food", Icon = "utensils" })
+Tabs.br:Section({ Title = "อาหาร", Icon = "utensils" })
 Tabs.br:Dropdown({
-	Title = "Select Food Items",
-	Desc = "Choose items to bring",
+	Title = "เลือกอาหาร",
+	Desc = "เลือกของที่จะนำมา",
 	Values = foodItems,
 	Multi = true,
 	AllowNone = true,
@@ -1661,8 +1633,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "Bring Food Items",
-	Desc = "Before you Bring Unlocked 1 Zone First!",
+	Title = "นำอาหาร",
+	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		foodToggleEnabled = value
@@ -1688,13 +1660,10 @@ Tabs.br:Toggle({
 	end
 })
 
--- ================================
--- Medicine
--- ================================
-Tabs.br:Section({ Title = "Medicine", Icon = "bandage" })
+Tabs.br:Section({ Title = "ยา", Icon = "bandage" })
 Tabs.br:Dropdown({
-	Title = "Select Medical Items",
-	Desc = "Choose items to bring",
+	Title = "เลือกยารักษา",
+	Desc = "เลือกของที่จะนำมา",
 	Values = medicalItems,
 	Multi = true,
 	AllowNone = true,
@@ -1703,8 +1672,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "Bring Medical Items",
-	Desc = "Before you Bring Unlocked 1 Zone First!",
+	Title = "นำยา",
+	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		medicalToggleEnabled = value
@@ -1730,13 +1699,10 @@ Tabs.br:Toggle({
 	end
 })
 
--- ================================
--- Equipment
--- ================================
-Tabs.br:Section({ Title = "Equipment", Icon = "sword" })
+Tabs.br:Section({ Title = "อุปกรณ์", Icon = "sword" })
 Tabs.br:Dropdown({
-	Title = "Select Equipment Items",
-	Desc = "Choose items to bring",
+	Title = "เลือกอุปกรณ์",
+	Desc = "เลือกของที่จะนำมา",
 	Values = equipmentItems,
 	Multi = true,
 	AllowNone = true,
@@ -1745,8 +1711,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "Bring Equipment Items",
-	Desc = "Before you Bring Unlocked 1 Zone First!",
+	Title = "นำอุปกรณ์",
+	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		equipmentToggleEnabled = value
@@ -1773,15 +1739,16 @@ Tabs.br:Toggle({
 })
 
 
-Tabs.Fly:Section({ Title = "Player Settings", Icon = "user" })
 
--- 🛡️ GOD MODE
+Tabs.Fly:Section({ Title = "การตั้งค่าผู้เล่น", Icon = "user" })
+
+-- 🛡️ โหมดอมตะ
 local rs = game:GetService("ReplicatedStorage")
 local dmgEvent = rs:FindFirstChild("RemoteEvents") and rs.RemoteEvents:FindFirstChild("DamagePlayer")
 local godModeConnection
 
 Tabs.Fly:Toggle({
-    Title = "God Mode",
+    Title = "โหมดอมตะ (God Mode)",
     Value = false,
     Callback = function(state)
         if state then
@@ -1801,9 +1768,8 @@ Tabs.Fly:Toggle({
     end
 })
 
-
 Tabs.Fly:Slider({
-    Title = "Fly Speed",
+    Title = "ความเร็วบิน",
     Value = { Min = 1, Max = 20, Default = 1 },
     Callback = function(value)
         flySpeed = value
@@ -1815,7 +1781,7 @@ Tabs.Fly:Slider({
                         local root = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                         if root and root:FindFirstChild("BodyVelocity") then
                             local bv = root:FindFirstChild("BodyVelocity")
-                            bv.Velocity = bv.Velocity.Unit * (flySpeed * 50) -- Adjust velocity magnitude
+                            bv.Velocity = bv.Velocity.Unit * (flySpeed * 50)
                         end
                     end
                 end
@@ -1825,7 +1791,7 @@ Tabs.Fly:Slider({
 })
 
 Tabs.Fly:Toggle({
-    Title = "Enable Fly",
+    Title = "เปิด/ปิด บิน",
     Value = false,
     Callback = function(state)
         flyToggle = state
@@ -1850,9 +1816,8 @@ local function setSpeed(val)
     if humanoid then humanoid.WalkSpeed = val end
 end
 
-
 Tabs.Fly:Slider({
-    Title = "Speed",
+    Title = "ความเร็วเดิน",
     Value = { Min = 16, Max = 150, Default = 16 },
     Callback = function(value)
         speed = value
@@ -1860,19 +1825,18 @@ Tabs.Fly:Slider({
 })
 
 Tabs.Fly:Toggle({
-    Title = "Enable Speed",
+    Title = "เปิด/ปิด ความเร็วเดิน",
     Value = false,
     Callback = function(state)
         setSpeed(state and speed or 16)
     end
 })
 
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local noclipConnection
 
 Tabs.Fly:Toggle({
-    Title = "No Clip",
+    Title = "นูคลิป (ทะลุของได้)",
     Value = false,
     Callback = function(state)
         if state then
@@ -1896,11 +1860,10 @@ Tabs.Fly:Toggle({
 })
 
 local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
 local infJumpConnection
 
 Tabs.Fly:Toggle({
-    Title = "Inf Jump",
+    Title = "กระโดดไม่จำกัด (Inf Jump)",
     Value = false,
     Callback = function(state)
         if state then
@@ -1920,6 +1883,7 @@ Tabs.Fly:Toggle({
     end
 })
 
+-- ESP
 function createESPText(part, text, color)
     if part:FindFirstChild("ESPTexto") then return end
 
@@ -1944,13 +1908,13 @@ function createESPText(part, text, color)
     esp.Parent = part
 end
 
-local function Aesp(nome, tipo)
+local function Aesp(name, type)
     local container
     local color
-    if tipo == "item" then
+    if type == "item" then
         container = workspace:FindFirstChild("Items")
         color = Color3.fromRGB(0, 255, 0)
-    elseif tipo == "mob" then
+    elseif type == "mob" then
         container = workspace:FindFirstChild("Characters")
         color = Color3.fromRGB(255, 255, 0)
     else
@@ -1959,7 +1923,7 @@ local function Aesp(nome, tipo)
     if not container then return end
 
     for _, obj in ipairs(container:GetChildren()) do
-        if obj.Name == nome then
+        if obj.Name == name then
             local part = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
             if part then
                 createESPText(part, obj.Name, color)
@@ -1968,11 +1932,11 @@ local function Aesp(nome, tipo)
     end
 end
 
-local function Desp(nome, tipo)
+local function Desp(name, type)
     local container
-    if tipo == "item" then
+    if type == "item" then
         container = workspace:FindFirstChild("Items")
-    elseif tipo == "mob" then
+    elseif type == "mob" then
         container = workspace:FindFirstChild("Characters")
     else
         return
@@ -1980,7 +1944,7 @@ local function Desp(nome, tipo)
     if not container then return end
 
     for _, obj in ipairs(container:GetChildren()) do
-        if obj.Name == nome then
+        if obj.Name == name then
             local part = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
             if part then
                 for _, gui in ipairs(part:GetChildren()) do
@@ -1999,10 +1963,10 @@ local espItemsEnabled = false
 local espMobsEnabled = false
 local espConnections = {}
 
-Tabs.esp:Section({ Title = "Esp Items", Icon = "package" })
+Tabs.esp:Section({ Title = "ESP ของไอเทม", Icon = "package" })
 
 Tabs.esp:Dropdown({
-    Title = "Esp Items",
+    Title = "เลือกไอเทม ESP",
     Values = ie,
     Value = {},
     Multi = true,
@@ -2026,7 +1990,7 @@ Tabs.esp:Dropdown({
 })
 
 Tabs.esp:Toggle({
-    Title = "Enable Esp",
+    Title = "เปิด/ปิด ESP ของไอเทม",
     Value = false,
     Callback = function(state)
         espItemsEnabled = state
@@ -2061,10 +2025,10 @@ Tabs.esp:Toggle({
     end
 })
 
-Tabs.esp:Section({ Title = "Esp Entity", Icon = "user" })
+Tabs.esp:Section({ Title = "ESP ของมอนสเตอร์", Icon = "user" })
 
 Tabs.esp:Dropdown({
-    Title = "Esp Entity",
+    Title = "เลือกมอนสเตอร์ ESP",
     Values = me,
     Value = {},
     Multi = true,
@@ -2088,7 +2052,7 @@ Tabs.esp:Dropdown({
 })
 
 Tabs.esp:Toggle({
-    Title = "Enable Esp",
+    Title = "เปิด/ปิด ESP ของมอนสเตอร์",
     Value = false,
     Callback = function(state)
         espMobsEnabled = state
@@ -2123,55 +2087,15 @@ Tabs.esp:Toggle({
     end
 })
 
-Tabs.Main:Section({ Title = "Misc", Icon = "settings" })
 
-local instantInteractEnabled = false
-local instantInteractConnection
-local originalHoldDurations = {}
-
-Tabs.Main:Toggle({
-    Title = "Instant Interact",
-    Value = false,
-    Callback = function(state)
-        instantInteractEnabled = state
-
-        if state then
-            originalHoldDurations = {}
-            instantInteractConnection = task.spawn(function()
-                while instantInteractEnabled do
-                    for _, obj in ipairs(workspace:GetDescendants()) do
-                        if obj:IsA("ProximityPrompt") then
-                            if originalHoldDurations[obj] == nil then
-                                originalHoldDurations[obj] = obj.HoldDuration
-                            end
-                            obj.HoldDuration = 0
-                        end
-                    end
-                    task.wait(5)
-                end
-            end)
-        else
-            if instantInteractConnection then
-                instantInteractEnabled = false
-            end
-            for obj, value in pairs(originalHoldDurations) do
-                if obj and obj:IsA("ProximityPrompt") then
-                    obj.HoldDuration = value
-                end
-            end
-            originalHoldDurations = {}
-        end
-    end
-})
-
-Tabs.Anti:Section({ Title = "Anti Monster", Icon = "skull" })
+Tabs.Anti:Section({ Title = "ป้องกันมอนสเตอร์", Icon = "skull" })
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local torchLoop = nil
 
 Tabs.Anti:Toggle({
-    Title = "Auto Stun Deer (Need Flashlight)",
+    Title = "ตีกวางอัตโนมัติ (ต้องใช้ไฟฉาย)", 
     Value = false,
     Callback = function(state)
         if state then
@@ -2202,7 +2126,7 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- ตั้งค่าแต่ละตัว
+-- ตั้งค่าระยะและความเร็วหลบ
 local ESCAPE_DISTANCE_OWL = 80
 local ESCAPE_SPEED_OWL = 5
 
@@ -2214,7 +2138,7 @@ local escapeLoopDeer
 
 -- Toggle หนี Owl
 Tabs.Anti:Toggle({
-    Title = "Escape From Owl", 
+    Title = "หลบจากนกฮูก", 
     Value = false,
     Callback = function(state)
         if state then
@@ -2244,7 +2168,7 @@ Tabs.Anti:Toggle({
 
 -- Toggle หนี Deer
 Tabs.Anti:Toggle({
-    Title = "Escape From Deer", 
+    Title = "หลบจากกวาง", 
     Value = false,
     Callback = function(state)
         if state then
@@ -2273,18 +2197,19 @@ Tabs.Anti:Toggle({
 })
 
 
-Tabs.Vision:Section({ Title = "Vision", Icon = "eye" })
+
+Tabs.Vision:Section({ Title = "การมองเห็น", Icon = "eye" })
 
 -- Variable
 
--- Store original parents for restoration
+-- เก็บ parent เดิมเพื่อเรียกคืน
 local originalParents = {
     Sky = nil,
     Bloom = nil,
     CampfireEffect = nil
 }
 
--- Function to store original parents
+-- ฟังก์ชันเก็บ parent เดิม
 local function storeOriginalParents()
     local Lighting = game:GetService("Lighting")
     
@@ -2303,12 +2228,11 @@ local function storeOriginalParents()
     end
 end
 
--- Store the original parents when script loads
 storeOriginalParents()
 
 local originalColorCorrectionParent = nil
 
--- Function to store original ColorCorrection parent
+-- ฟังก์ชันเก็บ ColorCorrection parent เดิม
 local function storeColorCorrectionParent()
     local Lighting = game:GetService("Lighting")
     local colorCorrection = Lighting:FindFirstChild("ColorCorrection")
@@ -2318,62 +2242,42 @@ local function storeColorCorrectionParent()
     end
 end
 
--- Store the original parent when script loads
 storeColorCorrectionParent()
 
 Tabs.Vision:Toggle({
-    Title = "Disable Fog",
+    Title = "ปิดหมอก",
     Desc = "",
     Value = false,
     Callback = function(state)
         local Lighting = game:GetService("Lighting")
         
         if state then
-            -- Disable effects by setting parent to nil
+            -- ปิดเอฟเฟกต์โดยตั้ง parent เป็น nil
             local sky = Lighting:FindFirstChild("Sky")
             local bloom = Lighting:FindFirstChild("Bloom")
             local campfireEffect = Lighting:FindFirstChild("CampfireEffect")
             
-            if sky then
-                sky.Parent = nil
-            end
-            if bloom then
-                bloom.Parent = nil
-            end
-            if campfireEffect then
-                campfireEffect.Parent = nil
-            end
-            
-
+            if sky then sky.Parent = nil end
+            if bloom then bloom.Parent = nil end
+            if campfireEffect then campfireEffect.Parent = nil end
         else
-            -- Re-enable effects by restoring original parents
-            -- First check if effects exist anywhere (they might be parented to nil)
+            -- เปิดเอฟเฟกต์กลับคืน parent เดิม
             local sky = game:FindFirstChild("Sky", true)
             local bloom = game:FindFirstChild("Bloom", true) 
             local campfireEffect = game:FindFirstChild("CampfireEffect", true)
             
-            -- If they don't exist, try to find them in Lighting's descendants
             if not sky then sky = Lighting:FindFirstChild("Sky") end
             if not bloom then bloom = Lighting:FindFirstChild("Bloom") end
             if not campfireEffect then campfireEffect = Lighting:FindFirstChild("CampfireEffect") end
             
-            -- Restore to Lighting (original parent)
-            if sky then
-                sky.Parent = originalParents.Sky or Lighting
-            end
-            if bloom then
-                bloom.Parent = originalParents.Bloom or Lighting
-            end
-            if campfireEffect then
-                campfireEffect.Parent = originalParents.CampfireEffect or Lighting
-            end
-            
-
+            if sky then sky.Parent = originalParents.Sky or Lighting end
+            if bloom then bloom.Parent = originalParents.Bloom or Lighting end
+            if campfireEffect then campfireEffect.Parent = originalParents.CampfireEffect or Lighting end
         end
     end
 })
 
--- Store original lighting values
+-- เก็บค่าการส่องสว่างเดิม
 local originalLightingValues = {
     Brightness = nil,
     Ambient = nil,
@@ -2383,7 +2287,6 @@ local originalLightingValues = {
     Technology = nil
 }
 
--- Function to store original lighting values
 local function storeOriginalLighting()
     local Lighting = game:GetService("Lighting")
     
@@ -2397,41 +2300,28 @@ local function storeOriginalLighting()
     end
 end
 
--- Store original values when script loads
 storeOriginalLighting()
 
 Tabs.Vision:Toggle({
-    Title = "Disable NightCampFire Effect",
+    Title = "ปิดเอฟเฟกต์แคมป์ไฟตอนกลางคืน",
     Desc = "",
     Value = false,
     Callback = function(state)
         local Lighting = game:GetService("Lighting")
         
         if state then
-            -- Disable ColorCorrection by setting parent to nil
             local colorCorrection = Lighting:FindFirstChild("ColorCorrection")
-            
             if colorCorrection then
-                -- Store original parent before disabling (if not already stored)
                 if not originalColorCorrectionParent then
                     originalColorCorrectionParent = colorCorrection.Parent
                 end
                 colorCorrection.Parent = nil
             end
         else
-            -- Re-enable ColorCorrection by restoring original parent
-            -- Search everywhere for the ColorCorrection object
-            local colorCorrection = nil
-            
-            -- First check if it's already in Lighting
-            colorCorrection = Lighting:FindFirstChild("ColorCorrection")
-            
-            -- If not found, search the entire game
+            local colorCorrection = Lighting:FindFirstChild("ColorCorrection")
             if not colorCorrection then
                 colorCorrection = game:FindFirstChild("ColorCorrection", true)
             end
-            
-            -- Restore to Lighting
             if colorCorrection then
                 colorCorrection.Parent = Lighting
             end
@@ -2439,13 +2329,14 @@ Tabs.Vision:Toggle({
     end
 })
 
-Tabs.Vision:Section({ Title = "Visual", Icon = "lightbulb" })
+Tabs.Vision:Section({ Title = "กราฟิกภาพ", Icon = "lightbulb" })
 
 Tabs.Vision:Toggle({
-    Title = "Full Bright",
+    Title = "สว่างเต็มที่",
     Desc = "",
     Value = false,
     Callback = function(state)
+        local Lighting = game:GetService("Lighting")
         if state then
             Lighting.ClockTime = 14
             Lighting.Brightness = 2.2
@@ -2455,7 +2346,6 @@ Tabs.Vision:Toggle({
             Lighting.GlobalShadows = false
             Lighting.Technology = Enum.Technology.Compatibility
         else
-            -- Restore original lighting
             Lighting.Brightness = originalLightingValues.Brightness
             Lighting.Ambient = originalLightingValues.Ambient
             Lighting.OutdoorAmbient = originalLightingValues.OutdoorAmbient
@@ -2466,17 +2356,13 @@ Tabs.Vision:Toggle({
     end
 })
 
-
-local NoFogToggle = false
-local OriginalFogStart = Lighting.FogStart
-local OriginalFogEnd = Lighting.FogEnd
-
 Tabs.Vision:Toggle({
-    Title = "No Fog",
+    Title = "ไม่มีหมอก",
     Desc = "",
     Value = false,
     Callback = function(state)
         NoFogToggle = state
+        local Lighting = game:GetService("Lighting")
         
         if not state then
             Lighting.ClockTime = 14
@@ -2487,34 +2373,11 @@ Tabs.Vision:Toggle({
     end
 })
 
-RunService.Heartbeat:Connect(function()
-    if NoFogToggle then
-        if Lighting.FogStart ~= 100000 or Lighting.FogEnd ~= 100000 then
-            Lighting.ClockTime = 14
-            Lighting.GlobalShadows = false
-            Lighting.FogStart = 100000
-            Lighting.FogEnd = 100000
-            print("[DYHUB] hi 3")
-        end
-    end
-end)
-
-if not vibrantEffect then
-    Lighting.ClockTime = 14
-    Lighting.GlobalShadows = false
-    vibrantEffect = Instance.new("ColorCorrectionEffect")
-    vibrantEffect.Name = "VibrantEffect"
-    vibrantEffect.Saturation = 0.5
-    vibrantEffect.Contrast = 0.2
-    vibrantEffect.Brightness = 0.1
-    vibrantEffect.Enabled = false   -- ปิดไว้เฉย ๆ
-    vibrantEffect.Parent = Lighting
-end
-
 Tabs.Vision:Toggle({
-    Title = "Vibrant Colors",
+    Title = "สีสันสดใส",
     Value = false,
     Callback = function(state)
+        local Lighting = game:GetService("Lighting")
         if state then
             Lighting.ClockTime = 14
             Lighting.GlobalShadows = false
@@ -2522,311 +2385,79 @@ Tabs.Vision:Toggle({
             Lighting.OutdoorAmbient = Color3.fromRGB(170, 170, 170)
             Lighting.ColorShift_Top = Color3.fromRGB(255, 230, 200)
             Lighting.ColorShift_Bottom = Color3.fromRGB(200, 240, 255)
-            if effect then
-                effect.Enabled = true
-            end
+            if effect then effect.Enabled = true end
         else
-            -- ปิดโหมด กลับค่าดั้งเดิม แต่ **ไม่รีเซ็ตทันทีตอนสคริปต์รัน**
-            if effect then
-                effect.Enabled = false
-            end
+            if effect then effect.Enabled = false end
             Lighting.ClockTime = 14
             Lighting.GlobalShadows = false
             Lighting.Ambient = Color3.new(0, 0, 0)
             Lighting.OutdoorAmbient = Color3.new(0, 0, 0)
             Lighting.ColorShift_Top = Color3.new(0, 0, 0)
             Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
-            print("[DYHUB] hi 1")
         end
     end
 })
 
-Tabs.Vision:Section({ Title = "Low Graphic", Icon = "user-cog" })
+Tabs.Vision:Section({ Title = "ปรับกราฟิกต่ำ", Icon = "user-cog" })
 
-Tabs.Vision:Button({
-    Title = "FPS Boost (By Roblox)",
-    Callback = function()
-        pcall(function()
-            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-            local lighting = game:GetService("Lighting")
-            lighting.Brightness = 1
-            lighting.FogEnd = 1000000
-            lighting.GlobalShadows = false
-            lighting.EnvironmentDiffuseScale = 0
-            lighting.EnvironmentSpecularScale = 0
-            lighting.ClockTime = 14
-            lighting.OutdoorAmbient = Color3.new(0, 0, 0)
-            local terrain = workspace:FindFirstChildOfClass("Terrain")
-            if terrain then
-                terrain.WaterWaveSize = 0
-                terrain.WaterWaveSpeed = 0
-                terrain.WaterReflectance = 0
-                terrain.WaterTransparency = 1
-            end
-            for _, obj in ipairs(lighting:GetDescendants()) do
-                if obj:IsA("PostEffect") or obj:IsA("BloomEffect") or obj:IsA("ColorCorrectionEffect") or obj:IsA("SunRaysEffect") or obj:IsA("BlurEffect") then
-                    obj.Enabled = false
-                end
-            end
-            for _, obj in ipairs(game:GetDescendants()) do
+local boostFPSToggle = false
+
+Tabs.Vision:Toggle({
+    Title = "Boost FPS",
+    Value = false,
+    Callback = function(state)
+        boostFPSToggle = state
+        if state then
+            -- ปิดเอฟเฟกต์กราฟิกบางอย่างเพื่อลดภาระ
+            -- ตัวอย่างเช่น ปิด Shadows, ParticleEmitter, TextureDetail
+            for _, obj in ipairs(workspace:GetDescendants()) do
                 if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
                     obj.Enabled = false
-                elseif obj:IsA("Texture") or obj:IsA("Decal") then
-                    obj.Transparency = 1
+                elseif obj:IsA("BasePart") then
+                    obj.CastShadow = false
                 end
             end
-            for _, part in ipairs(workspace:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CastShadow = false
-                end
-            end
-        end)
-        print("[Roblox] FPS Boost Applied")
-    end
-})
-
--- สร้างแท็บก่อน
-Tabs.Vision:Button({
-    Title = "FPS Boost (By DYHUB)",
-    Callback = function()
-        print("[DYHUB] FPS Boost Applied")
-
-        
-        local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/dyumra/DYHUB-Universal-Game/refs/heads/main/Nigga.lua"))()
-        end)
-
-        if success then
-            print("[DYHUB] Script loaded successfully")
+            -- ลดคุณภาพของ Lighting
+            local lighting = game:GetService("Lighting")
+            lighting.GlobalShadows = false
+            lighting.FogEnd = 100000
+            lighting.Brightness = 1
+            lighting.OutdoorAmbient = Color3.fromRGB(128,128,128)
         else
-            warn("[DYHUB] Failed to load script: " .. tostring(err))
-            print("[DYHUB] hi 1")
+            -- เปิดกลับค่าเดิม
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
+                    obj.Enabled = true
+                elseif obj:IsA("BasePart") then
+                    obj.CastShadow = true
+                end
+            end
+            local lighting = game:GetService("Lighting")
+            lighting.GlobalShadows = true
+            lighting.FogEnd = 1000
+            lighting.Brightness = 2
+            lighting.OutdoorAmbient = Color3.fromRGB(196,196,196)
         end
     end
 })
 
 
-local RunService = game:GetService("RunService")
-local Stats = game:GetService("Stats")
-local Camera = workspace.CurrentCamera
 
--- Settings
-local showFPS, showPing = true, true
-local fpsCounter, fpsLastUpdate, fpsValue = 0, tick(), 0
 
--- Drawing setup
-local function createText(yOffset)
-    local textObj = Drawing.new("Text")
-    textObj.Size = 16
-    textObj.Position = Vector2.new(Camera.ViewportSize.X - 110, yOffset)
-    textObj.Color = Color3.fromRGB(0, 255, 0)
-    textObj.Center = false
-    textObj.Outline = true
-    textObj.Visible = true
-    return textObj
-end
 
-local fpsText = createText(10)
-local msText = createText(30)
 
--- Adjust position when screen size changes
-Camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-    fpsText.Position = Vector2.new(Camera.ViewportSize.X - 110, 10)
-    msText.Position = Vector2.new(Camera.ViewportSize.X - 110, 30)
-end)
-
--- Main update loop
-RunService.RenderStepped:Connect(function()
-    fpsCounter += 1
-
-    if tick() - fpsLastUpdate >= 1 then
-        fpsValue = fpsCounter
-        fpsCounter = 0
-        fpsLastUpdate = tick()
-
-        -- FPS Display
-        if showFPS then
-            fpsText.Text = string.format("FPS: %d", fpsValue)
-            fpsText.Color = fpsValue >= 50 and Color3.fromRGB(0, 255, 0)
-                or fpsValue >= 30 and Color3.fromRGB(255, 165, 0)
-                or Color3.fromRGB(255, 0, 0)
-            fpsText.Visible = true
-        else
-            fpsText.Visible = false
-        end
-
-        -- Ping Display
-        if showPing then
-            local pingStat = Stats.Network.ServerStatsItem["Data Ping"]
-            local ping = pingStat and math.floor(pingStat:GetValue()) or 0
-            local color, label = Color3.fromRGB(0, 255, 0), "Ping: "
-
-            if ping > 120 then
-                color, label = Color3.fromRGB(255, 0, 0), "Ew Wifi Ping: "
-            elseif ping > 60 then
-                color = Color3.fromRGB(255, 165, 0)
-            end
-
-            msText.Text = string.format("%s%d ms", label, ping)
-            msText.Color = color
-            msText.Visible = true
-        else
-            msText.Visible = false
-        end
-    end
-end)
-
-Tabs.More:Section({ Title = "Auto Farm", Icon = "gem" })
-Tabs.More:Section({ Title = "Feature: Auto Exe, Auto Server-Hop", Icon = "info" })
-
--- ปุ่มในแท็บ More
-Tabs.More:Button({
-    Title = "Auto Farm (Cào Mod)",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/dyumra/kuy/refs/heads/main/dyhub99night.lua"))()
-    end
-})
-
--- Replace the problematic section with this fixed version:
-
-Info = Tabs["Info"]  -- This correctly references your existing Info tab
-
-if not ui then ui = {} end
-if not ui.Creator then ui.Creator = {} end
-
--- Define the Request function that mimics ui.Creator.Request
-ui.Creator.Request = function(requestData)
-    local HttpService = game:GetService("HttpService")
-    
-    -- Try different HTTP methods
-    local success, result = pcall(function()
-        if HttpService.RequestAsync then
-            -- Method 1: Use RequestAsync if available
-            local response = HttpService:RequestAsync({
-                Url = requestData.Url,
-                Method = requestData.Method or "GET",
-                Headers = requestData.Headers or {}
-            })
-            return {
-                Body = response.Body,
-                StatusCode = response.StatusCode,
-                Success = response.Success
-            }
-        else
-            -- Method 2: Fallback to GetAsync
-            local body = HttpService:GetAsync(requestData.Url)
-            return {
-                Body = body,
-                StatusCode = 200,
-                Success = true
-            }
-        end
-    end)
-    
-    if success then
-        return result
-    else
-        error("HTTP Request failed: " .. tostring(result))
-    end
-end
-
--- Remove this line completely: Info = InfoTab
--- The Info variable is already correctly set above
-
-local InviteCode = "jWNDPNMmyB"
-local DiscordAPI = "https://discord.com/api/v10/invites/" .. InviteCode .. "?with_counts=true&with_expiration=true"
-
-local function LoadDiscordInfo()
-    local success, result = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(ui.Creator.Request({
-            Url = DiscordAPI,
-            Method = "GET",
-            Headers = {
-                ["User-Agent"] = "RobloxBot/1.0",
-                ["Accept"] = "application/json"
-            }
-        }).Body)
-    end)
-
-    if success and result and result.guild then
-        local DiscordInfo = Info:Paragraph({
-            Title = result.guild.name,
-            Desc = ' <font color="#52525b">●</font> Member Count : ' .. tostring(result.approximate_member_count) ..
-                '\n <font color="#16a34a">●</font> Online Count : ' .. tostring(result.approximate_presence_count),
-            Image = "https://cdn.discordapp.com/icons/" .. result.guild.id .. "/" .. result.guild.icon .. ".png?size=1024",
-            ImageSize = 42,
-        })
-
-        Info:Button({
-            Title = "Update Info",
-            Callback = function()
-                local updated, updatedResult = pcall(function()
-                    return game:GetService("HttpService"):JSONDecode(ui.Creator.Request({
-                        Url = DiscordAPI,
-                        Method = "GET",
-                    }).Body)
-                end)
-
-                if updated and updatedResult and updatedResult.guild then
-                    DiscordInfo:SetDesc(
-                        ' <font color="#52525b">●</font> Member Count : ' .. tostring(updatedResult.approximate_member_count) ..
-                        '\n <font color="#16a34a">●</font> Online Count : ' .. tostring(updatedResult.approximate_presence_count)
-                    )
-                    
-                    WindUI:Notify({
-                        Title = "Discord Info Updated",
-                        Content = "Successfully refreshed Discord statistics",
-                        Duration = 2,
-                        Icon = "refresh-cw",
-                    })
-                else
-                    WindUI:Notify({
-                        Title = "Update Failed",
-                        Content = "Could not refresh Discord info",
-                        Duration = 3,
-                        Icon = "alert-triangle",
-                    })
-                end
-            end
-        })
-
-        Info:Button({
-            Title = "Copy Discord Invite",
-            Callback = function()
-                setclipboard("https://discord.gg/" .. InviteCode)
-                WindUI:Notify({
-                    Title = "Copied!",
-                    Content = "Discord invite copied to clipboard",
-                    Duration = 2,
-                    Icon = "clipboard-check",
-                })
-            end
-        })
-    else
-        Info:Paragraph({
-            Title = "Error fetching Discord Info",
-            Desc = "Unable to load Discord information. Check your internet connection.",
-            Image = "triangle-alert",
-            ImageSize = 26,
-            Color = "Red",
-        })
-        print("Discord API Error:", result) -- Debug print
-    end
-end
-
-LoadDiscordInfo()
-
+Info = Tabs["Info"]
 Info:Divider()
-Info:Section({ 
-    Title = "DYHUB Information",
+Info:Section({  
+    Title = "Chx Script",
     TextXAlignment = "Center",
     TextSize = 17,
 })
 Info:Divider()
 
 local Owner = Info:Paragraph({
-    Title = "Main Owner",
-    Desc = "@dyumraisgoodguy#8888",
+    Title = "เจ้าของหลัก",
+    Desc = "@chrxstoq_fx",
     Image = "rbxassetid://119789418015420",
     ImageSize = 30,
     Thumbnail = "",
@@ -2834,29 +2465,9 @@ local Owner = Info:Paragraph({
     Locked = false,
 })
 
-local Social = Info:Paragraph({
-    Title = "Social",
-    Desc = "Copy link social media for follow!",
-    Image = "rbxassetid://104487529937663",
-    ImageSize = 30,
-    Thumbnail = "",
-    ThumbnailSize = 0,
-    Locked = false,
-    Buttons = {
-        {
-            Icon = "copy",
-            Title = "Copy Link",
-            Callback = function()
-                setclipboard("https://guns.lol/DYHUB")
-                print("Copied social media link to clipboard!")
-            end,
-        }
-    }
-})
-
 local Discord = Info:Paragraph({
     Title = "Discord",
-    Desc = "Join our discord for more scripts!",
+    Desc = "เข้าร่วม Discord ของเราเพื่อรับสคริปต์เพิ่มเติม!",
     Image = "rbxassetid://104487529937663",
     ImageSize = 30,
     Thumbnail = "",
@@ -2865,10 +2476,10 @@ local Discord = Info:Paragraph({
     Buttons = {
         {
             Icon = "copy",
-            Title = "Copy Link",
+            Title = "คัดลอกลิงก์",
             Callback = function()
-                setclipboard("https://discord.gg/jWNDPNMmyB")
-                print("Copied discord link to clipboard!")
+                setclipboard("https://discord.gg/zHMEUZrHZ6")
+                print("คัดลอกลิงก์ Discord เรียบร้อยแล้ว!")
             end,
         }
     }
