@@ -876,7 +876,7 @@ local function bringItemsByPlayerTP(itemNames, originalPosition)
 end
 
 local Window = WindUI:CreateWindow({
-    Title = "DYHUB",
+    Title = "Chx Script",
     Icon = "rbxassetid://104487529937663", 
     Author = "99 Night in the Forest | Free Version",
     Folder = "AxsHub",
@@ -946,7 +946,7 @@ pcall(function()
 end)
 
 Window:EditOpenButton({
-    Title = "Chx - เปิด",
+    Title = "Chx Script",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
@@ -1007,7 +1007,7 @@ Window:SelectTab(1)
 Tabs.Auto:Section({ Title = "ออร่า", Icon = "star" })
 
 Tabs.Auto:Toggle({
-    Title = "Kill Aura",
+    Title = "ฆ่ามอนสเตอร์รอบตัว",
     Value = false,
     Callback = function(state)
         killAuraToggle = state
@@ -1021,7 +1021,7 @@ Tabs.Auto:Toggle({
 })
 
 Tabs.Auto:Toggle({
-    Title = "Chop Aura",
+    Title = "ตัดต้นไม้รอบตัว",
     Value = false,
     Callback = function(state)
         chopAuraToggle = state
@@ -2200,246 +2200,149 @@ Tabs.Anti:Toggle({
 
 Tabs.Vision:Section({ Title = "การมองเห็น", Icon = "eye" })
 
--- Variable
+local Lighting = game:GetService("Lighting")
 
--- เก็บ parent เดิมเพื่อเรียกคืน
-local originalParents = {
-    Sky = nil,
-    Bloom = nil,
-    CampfireEffect = nil
-}
-
--- ฟังก์ชันเก็บ parent เดิม
-local function storeOriginalParents()
-    local Lighting = game:GetService("Lighting")
-    
-    local sky = Lighting:FindFirstChild("Sky")
-    local bloom = Lighting:FindFirstChild("Bloom")
-    local campfireEffect = Lighting:FindFirstChild("CampfireEffect")
-    
-    if sky and not originalParents.Sky then
-        originalParents.Sky = sky.Parent
-    end
-    if bloom and not originalParents.Bloom then
-        originalParents.Bloom = bloom.Parent
-    end
-    if campfireEffect and not originalParents.CampfireEffect then
-        originalParents.CampfireEffect = campfireEffect.Parent
+-- เก็บ parent เดิมทั้งหมด
+local originalParents = {}
+for _, name in ipairs({"Sky", "Bloom", "CampfireEffect", "ColorCorrection"}) do
+    local obj = Lighting:FindFirstChild(name)
+    if obj then
+        originalParents[name] = obj.Parent
     end
 end
 
-storeOriginalParents()
-
-local originalColorCorrectionParent = nil
-
--- ฟังก์ชันเก็บ ColorCorrection parent เดิม
-local function storeColorCorrectionParent()
-    local Lighting = game:GetService("Lighting")
-    local colorCorrection = Lighting:FindFirstChild("ColorCorrection")
-    
-    if colorCorrection and not originalColorCorrectionParent then
-        originalColorCorrectionParent = colorCorrection.Parent
-    end
-end
-
-storeColorCorrectionParent()
-
-Tabs.Vision:Toggle({
-    Title = "ปิดหมอก",
-    Desc = "",
-    Value = false,
-    Callback = function(state)
-        local Lighting = game:GetService("Lighting")
-        
-        if state then
-            -- ปิดเอฟเฟกต์โดยตั้ง parent เป็น nil
-            local sky = Lighting:FindFirstChild("Sky")
-            local bloom = Lighting:FindFirstChild("Bloom")
-            local campfireEffect = Lighting:FindFirstChild("CampfireEffect")
-            
-            if sky then sky.Parent = nil end
-            if bloom then bloom.Parent = nil end
-            if campfireEffect then campfireEffect.Parent = nil end
-        else
-            -- เปิดเอฟเฟกต์กลับคืน parent เดิม
-            local sky = game:FindFirstChild("Sky", true)
-            local bloom = game:FindFirstChild("Bloom", true) 
-            local campfireEffect = game:FindFirstChild("CampfireEffect", true)
-            
-            if not sky then sky = Lighting:FindFirstChild("Sky") end
-            if not bloom then bloom = Lighting:FindFirstChild("Bloom") end
-            if not campfireEffect then campfireEffect = Lighting:FindFirstChild("CampfireEffect") end
-            
-            if sky then sky.Parent = originalParents.Sky or Lighting end
-            if bloom then bloom.Parent = originalParents.Bloom or Lighting end
-            if campfireEffect then campfireEffect.Parent = originalParents.CampfireEffect or Lighting end
-        end
-    end
-})
-
--- เก็บค่าการส่องสว่างเดิม
+-- เก็บค่าการส่องสว่างและกราฟิก
 local originalLightingValues = {
-    Brightness = nil,
-    Ambient = nil,
-    OutdoorAmbient = nil,
-    ShadowSoftness = nil,
-    GlobalShadows = nil,
-    Technology = nil
+    Brightness = Lighting.Brightness,
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    ShadowSoftness = Lighting.ShadowSoftness,
+    GlobalShadows = Lighting.GlobalShadows,
+    Technology = Lighting.Technology,
+    ClockTime = Lighting.ClockTime,
+    FogStart = Lighting.FogStart,
+    FogEnd = Lighting.FogEnd,
+    ColorShift_Top = Lighting.ColorShift_Top,
+    ColorShift_Bottom = Lighting.ColorShift_Bottom
 }
 
-local function storeOriginalLighting()
-    local Lighting = game:GetService("Lighting")
-    
-    if not originalLightingValues.Brightness then
-        originalLightingValues.Brightness = Lighting.Brightness
-        originalLightingValues.Ambient = Lighting.Ambient
-        originalLightingValues.OutdoorAmbient = Lighting.OutdoorAmbient
-        originalLightingValues.ShadowSoftness = Lighting.ShadowSoftness
-        originalLightingValues.GlobalShadows = Lighting.GlobalShadows
-        originalLightingValues.Technology = Lighting.Technology
+-- ฟังก์ชันทั่วไปสำหรับเปิด/ปิด parent
+local function setParent(name, parent)
+    local obj = Lighting:FindFirstChild(name)
+    if obj then
+        obj.Parent = parent
     end
 end
 
-storeOriginalLighting()
-
-Tabs.Vision:Toggle({
-    Title = "ปิดเอฟเฟกต์แคมป์ไฟตอนกลางคืน",
-    Desc = "",
-    Value = false,
-    Callback = function(state)
-        local Lighting = game:GetService("Lighting")
-        
-        if state then
-            local colorCorrection = Lighting:FindFirstChild("ColorCorrection")
-            if colorCorrection then
-                if not originalColorCorrectionParent then
-                    originalColorCorrectionParent = colorCorrection.Parent
-                end
-                colorCorrection.Parent = nil
-            end
-        else
-            local colorCorrection = Lighting:FindFirstChild("ColorCorrection")
-            if not colorCorrection then
-                colorCorrection = game:FindFirstChild("ColorCorrection", true)
-            end
-            if colorCorrection then
-                colorCorrection.Parent = Lighting
-            end
-        end
-    end
-})
-
-Tabs.Vision:Section({ Title = "กราฟิกภาพ", Icon = "lightbulb" })
-
+-- สว่างเต็มที่
 Tabs.Vision:Toggle({
     Title = "สว่างเต็มที่",
-    Desc = "",
     Value = false,
     Callback = function(state)
-        local Lighting = game:GetService("Lighting")
         if state then
             Lighting.ClockTime = 14
             Lighting.Brightness = 2.2
-            Lighting.Ambient = Color3.new(1, 1, 1)
-            Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+            Lighting.Ambient = Color3.new(1,1,1)
+            Lighting.OutdoorAmbient = Color3.new(1,1,1)
             Lighting.ShadowSoftness = 0
             Lighting.GlobalShadows = false
             Lighting.Technology = Enum.Technology.Compatibility
         else
-            Lighting.Brightness = originalLightingValues.Brightness
-            Lighting.Ambient = originalLightingValues.Ambient
-            Lighting.OutdoorAmbient = originalLightingValues.OutdoorAmbient
-            Lighting.ShadowSoftness = originalLightingValues.ShadowSoftness
-            Lighting.GlobalShadows = originalLightingValues.GlobalShadows
-            Lighting.Technology = originalLightingValues.Technology
+            for k,v in pairs(originalLightingValues) do
+                Lighting[k] = v
+            end
         end
     end
 })
 
+-- ไม่มีหมอก
 Tabs.Vision:Toggle({
     Title = "ไม่มีหมอก",
-    Desc = "",
     Value = false,
     Callback = function(state)
-        NoFogToggle = state
-        local Lighting = game:GetService("Lighting")
-        
-        if not state then
-            Lighting.ClockTime = 14
-            Lighting.GlobalShadows = false
-            Lighting.FogStart = OriginalFogStart
-            Lighting.FogEnd = OriginalFogEnd
+        if state then
+            Lighting.FogStart = 99999
+            Lighting.FogEnd = 100000
+        else
+            Lighting.FogStart = originalLightingValues.FogStart
+            Lighting.FogEnd = originalLightingValues.FogEnd
         end
     end
 })
 
+-- สีสันสดใส
 Tabs.Vision:Toggle({
     Title = "สีสันสดใส",
     Value = false,
     Callback = function(state)
-        local Lighting = game:GetService("Lighting")
         if state then
             Lighting.ClockTime = 14
             Lighting.GlobalShadows = false
-            Lighting.Ambient = Color3.fromRGB(180, 180, 180)
-            Lighting.OutdoorAmbient = Color3.fromRGB(170, 170, 170)
-            Lighting.ColorShift_Top = Color3.fromRGB(255, 230, 200)
-            Lighting.ColorShift_Bottom = Color3.fromRGB(200, 240, 255)
-            if effect then effect.Enabled = true end
+            Lighting.Ambient = Color3.fromRGB(180,180,180)
+            Lighting.OutdoorAmbient = Color3.fromRGB(170,170,170)
+            Lighting.ColorShift_Top = Color3.fromRGB(255,230,200)
+            Lighting.ColorShift_Bottom = Color3.fromRGB(200,240,255)
         else
-            if effect then effect.Enabled = false end
-            Lighting.ClockTime = 14
-            Lighting.GlobalShadows = false
-            Lighting.Ambient = Color3.new(0, 0, 0)
-            Lighting.OutdoorAmbient = Color3.new(0, 0, 0)
-            Lighting.ColorShift_Top = Color3.new(0, 0, 0)
-            Lighting.ColorShift_Bottom = Color3.new(0, 0, 0)
+            Lighting.ClockTime = originalLightingValues.ClockTime
+            Lighting.GlobalShadows = originalLightingValues.GlobalShadows
+            Lighting.Ambient = originalLightingValues.Ambient
+            Lighting.OutdoorAmbient = originalLightingValues.OutdoorAmbient
+            Lighting.ColorShift_Top = originalLightingValues.ColorShift_Top
+            Lighting.ColorShift_Bottom = originalLightingValues.ColorShift_Bottom
         end
     end
 })
 
-Tabs.Vision:Section({ Title = "ปรับกราฟิกต่ำ", Icon = "user-cog" })
-
+-- Boost FPS (ปรับภาพเป็นดินน้ำมัน + ปิดเงา)
 local boostFPSToggle = false
+local originalMaterials = {}
+local originalShadows = {}
 
 Tabs.Vision:Toggle({
     Title = "Boost FPS",
     Value = false,
     Callback = function(state)
         boostFPSToggle = state
+
         if state then
-            -- ปิดเอฟเฟกต์กราฟิกบางอย่างเพื่อลดภาระ
-            -- ตัวอย่างเช่น ปิด Shadows, ParticleEmitter, TextureDetail
+            -- ปรับ BasePart เป็น SmoothPlastic (ดินน้ำมัน) และปิดเงา
             for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
-                    obj.Enabled = false
-                elseif obj:IsA("BasePart") then
+                if obj:IsA("BasePart") then
+                    -- เก็บค่าของเดิม
+                    if not originalMaterials[obj] then originalMaterials[obj] = obj.Material end
+                    if not originalShadows[obj] then originalShadows[obj] = obj.CastShadow end
+
+                    obj.Material = Enum.Material.SmoothPlastic
                     obj.CastShadow = false
                 end
             end
-            -- ลดคุณภาพของ Lighting
-            local lighting = game:GetService("Lighting")
-            lighting.GlobalShadows = false
-            lighting.FogEnd = 100000
-            lighting.Brightness = 1
-            lighting.OutdoorAmbient = Color3.fromRGB(128,128,128)
+
+            -- ปรับ Lighting เงา GlobalShadows
+            local Lighting = game:GetService("Lighting")
+            Lighting.GlobalShadows = false
+
         else
-            -- เปิดกลับค่าเดิม
-            for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
-                    obj.Enabled = true
-                elseif obj:IsA("BasePart") then
-                    obj.CastShadow = true
+            -- คืนค่า BasePart เดิม
+            for obj, mat in pairs(originalMaterials) do
+                if obj and obj:IsA("BasePart") then
+                    obj.Material = mat
                 end
             end
-            local lighting = game:GetService("Lighting")
-            lighting.GlobalShadows = true
-            lighting.FogEnd = 1000
-            lighting.Brightness = 2
-            lighting.OutdoorAmbient = Color3.fromRGB(196,196,196)
+
+            for obj, shadow in pairs(originalShadows) do
+                if obj and obj:IsA("BasePart") then
+                    obj.CastShadow = shadow
+                end
+            end
+
+            -- คืนค่า Lighting GlobalShadows เดิม
+            local Lighting = game:GetService("Lighting")
+            Lighting.GlobalShadows = originalLightingValues.GlobalShadows
         end
     end
 })
+
+
 
 
 
