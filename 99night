@@ -876,18 +876,19 @@ local function bringItemsByPlayerTP(itemNames, originalPosition)
 end
 
 local Window = WindUI:CreateWindow({
-    Title = "Chx Script",
+    Title = "Dual Hub",
     Icon = "rbxassetid://136699990056915", 
     Author = "99 Night in the Forest | Free Version",
-    Folder = "AxsHub",
+    Folder = "Dual Hub",
     Size = UDim2.fromOffset(500, 350),
     Transparent = getgenv().TransparencyEnabled,
-    Theme = "Dark",
+    Theme = "Purple",
     Resizable = true,
     SideBarWidth = 150,
     BackgroundImageTransparency = 0.8,
     HideSearchBar = false,
     ScrollBarEnabled = true,
+
     User = {
         Enabled = true,
         Anonymous = false,
@@ -909,8 +910,8 @@ local Window = WindUI:CreateWindow({
             print("Switched to " .. newTheme .. " theme")
         end,
     },
-    
 })
+
 
 Window:SetToggleKey(Enum.KeyCode.V)
 
@@ -946,7 +947,7 @@ pcall(function()
 end)
 
 Window:EditOpenButton({
-    Title = "Chx Script",
+    Title = "Dual Hub",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
@@ -959,44 +960,44 @@ local Tabs = {}
 Tabs.Info = Window:Tab({
     Title = "ข้อมูล",
     Icon = "badge-info",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 Tabs.Auto = Window:Tab({
     Title = "หลัก",
     Icon = "rocket",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 Tabs.br = Window:Tab({
     Title = "ดึงของ",
     Icon = "package",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 Tabs.Fly = Window:Tab({
     Title = "ผู้เล่น",
     Icon = "user",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 Tabs.esp = Window:Tab({
     Title = "Esp",
     Icon = "eye",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 Tabs.Tp = Window:Tab({
     Title = "วาป",
     Icon = "map",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 
 Tabs.Anti = Window:Tab({
     Title = "ป้องกัน",
     Icon = "shield",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 
 Tabs.Vision = Window:Tab({
     Title = "ตั้งค่า",
     Icon = "settings",
-    Desc = "Chx"
+    Desc = "Dual"
 })
 
 Window:SelectTab(1)
@@ -1836,7 +1837,7 @@ local RunService = game:GetService("RunService")
 local noclipConnection
 
 Tabs.Fly:Toggle({
-    Title = "นูคลิป (ทะลุของได้)",
+    Title = "ทะลุสิ่งของ (Noclip)",
     Value = false,
     Callback = function(state)
         if state then
@@ -2354,36 +2355,19 @@ Info:Divider()
 
 -- 🌟 ชื่อหลัก
 Info:Section({  
-    Title = "Chx Script",
+    Title = "Dual Hub",
     TextXAlignment = "Center",
-    TextSize = 20,
-})
-
--- 👤 DEV
-Info:Section({  
-    Title = "DEV",
-    TextXAlignment = "Center",
-    TextSize = 16,
+    TextSize = 50,
 })
 
 -- 💬 ผู้สร้าง
 Info:Section({  
-    Title = "@Chrxstoq_fx",
+    Title = "@Chx | @Kira",
     TextXAlignment = "Center",
     TextSize = 15,
 })
 
 Info:Divider()
-
--- 👑 เจ้าของหลัก
-local Owner = Info:Paragraph({
-    Title = "เจ้าของหลัก",
-    Desc = "@chrxstoq_fx",
-    Image = "",
-    ImageSize = 0,
-    Locked = false,
-    TextXAlignment = "Center",
-})
 
 -- 🌐 Discord + ปุ่มคัดลอก
 local Discord = Info:Paragraph({
