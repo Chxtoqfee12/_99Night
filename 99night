@@ -877,7 +877,7 @@ end
 
 local Window = WindUI:CreateWindow({
     Title = "Chx Script",
-    Icon = "rbxassetid://131166703207122", 
+    Icon = "rbxassetid://136699990056915", 
     Author = "99 Night in the Forest | Free Version",
     Folder = "AxsHub",
     Size = UDim2.fromOffset(500, 350),
@@ -2348,41 +2348,61 @@ Tabs.Vision:Toggle({
 
 
 
-
 Info = Tabs["Info"]
+
 Info:Divider()
+
+-- 🌟 ชื่อหลัก
 Info:Section({  
     Title = "Chx Script",
     TextXAlignment = "Center",
-    TextSize = 17,
+    TextSize = 20,
 })
+
+-- 👤 DEV
+Info:Section({  
+    Title = "DEV",
+    TextXAlignment = "Center",
+    TextSize = 16,
+})
+
+-- 💬 ผู้สร้าง
+Info:Section({  
+    Title = "@Chrxstoq_fx",
+    TextXAlignment = "Center",
+    TextSize = 15,
+})
+
 Info:Divider()
 
+-- 👑 เจ้าของหลัก
 local Owner = Info:Paragraph({
     Title = "เจ้าของหลัก",
     Desc = "@chrxstoq_fx",
-    Image = "rbxassetid://131166703207122",
-    ImageSize = 30,
-    Thumbnail = "",
-    ThumbnailSize = 0,
+    Image = "",
+    ImageSize = 0,
     Locked = false,
+    TextXAlignment = "Center",
 })
 
+-- 🌐 Discord + ปุ่มคัดลอก
 local Discord = Info:Paragraph({
     Title = "Discord",
     Desc = "เข้าร่วม Discord ของเราเพื่อรับสคริปต์เพิ่มเติม!",
-    Image = "rbxassetid://104487529937663",
-    ImageSize = 30,
-    Thumbnail = "",
-    ThumbnailSize = 0,
+    Image = "",
+    ImageSize = 0,
     Locked = false,
+    TextXAlignment = "Center",
     Buttons = {
         {
-            Icon = "copy",
             Title = "คัดลอกลิงก์",
             Callback = function()
                 setclipboard("https://discord.gg/zHMEUZrHZ6")
-                print("คัดลอกลิงก์ Discord เรียบร้อยแล้ว!")
+                WindUI:Notify({
+                    Title = "📋 คัดลอกสำเร็จ",
+                    Content = "คัดลอกลิงก์ Discord แล้ว!",
+                    Duration = 2
+                })
             end,
         }
     }
