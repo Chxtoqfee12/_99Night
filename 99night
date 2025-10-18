@@ -967,7 +967,7 @@ Tabs.Auto = Window:Tab({
     Desc = "Chx"
 })
 Tabs.br = Window:Tab({
-    Title = "นำมา",
+    Title = "ดึงของ",
     Icon = "package",
     Desc = "Chx"
 })
@@ -1543,10 +1543,10 @@ end
 -- 🧩 เพิ่มในแท็บ Tabs.br (UI แต่ละหมวด)
 -- ===================================================
 
-Tabs.br:Section({ Title = "ขยะ", Icon = "box" })
+Tabs.br:Section({ Title = "เศษเหล็ก", Icon = "box" })
 Tabs.br:Dropdown({
-	Title = "เลือกของขยะ",
-	Desc = "เลือกของที่จะนำมา",
+	Title = "เลือกเศษเหล็ก",
+	Desc = "เลือกของที่จะดึงมา",
 	Values = junkItems,
 	Multi = true,
 	AllowNone = true,
@@ -1555,8 +1555,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "นำของขยะ",
-	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
+	Title = "ดึงเศษเหล็ก",
+	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		junkToggleEnabled = value
@@ -1585,7 +1585,7 @@ Tabs.br:Toggle({
 Tabs.br:Section({ Title = "เชื้อเพลิง", Icon = "flame" })
 Tabs.br:Dropdown({
 	Title = "เลือกเชื้อเพลิง",
-	Desc = "เลือกของที่จะนำมา",
+	Desc = "เลือกของที่จะดึง",
 	Values = fuelItems,
 	Multi = true,
 	AllowNone = true,
@@ -1594,8 +1594,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "นำเชื้อเพลิง",
-	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
+	Title = "ดึงเชื้อเพลิง",
+	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		fuelToggleEnabled = value
@@ -1624,7 +1624,7 @@ Tabs.br:Toggle({
 Tabs.br:Section({ Title = "อาหาร", Icon = "utensils" })
 Tabs.br:Dropdown({
 	Title = "เลือกอาหาร",
-	Desc = "เลือกของที่จะนำมา",
+	Desc = "เลือกของที่จะดึงมา",
 	Values = foodItems,
 	Multi = true,
 	AllowNone = true,
@@ -1633,8 +1633,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "นำอาหาร",
-	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
+	Title = "ดึงอาหาร",
+	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		foodToggleEnabled = value
@@ -1663,7 +1663,7 @@ Tabs.br:Toggle({
 Tabs.br:Section({ Title = "ยา", Icon = "bandage" })
 Tabs.br:Dropdown({
 	Title = "เลือกยารักษา",
-	Desc = "เลือกของที่จะนำมา",
+	Desc = "เลือกของที่จะดึงมา",
 	Values = medicalItems,
 	Multi = true,
 	AllowNone = true,
@@ -1672,8 +1672,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "นำยา",
-	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
+	Title = "ดึงยา",
+	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		medicalToggleEnabled = value
@@ -1702,7 +1702,7 @@ Tabs.br:Toggle({
 Tabs.br:Section({ Title = "อุปกรณ์", Icon = "sword" })
 Tabs.br:Dropdown({
 	Title = "เลือกอุปกรณ์",
-	Desc = "เลือกของที่จะนำมา",
+	Desc = "เลือกของที่จะดึงมา",
 	Values = equipmentItems,
 	Multi = true,
 	AllowNone = true,
@@ -1711,8 +1711,8 @@ Tabs.br:Dropdown({
 	end
 })
 Tabs.br:Toggle({
-	Title = "นำอุปกรณ์",
-	Desc = "ก่อนนำ ต้องปลดล็อกโซน 1 ก่อน!",
+	Title = "ดึงอุปกรณ์",
+	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
 	Default = false,
 	Callback = function(value)
 		equipmentToggleEnabled = value
