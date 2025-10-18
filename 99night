@@ -1421,321 +1421,345 @@ Tabs.Tp:Button({
     end
 })
 
--- ฟังก์ชัน: วาปของที่เลือกไปกองบนหัวเรา (ไม่แยก) แล้วปล่อย
+-- ==========================================
+-- 🛠️ ระบบดึงของทีละชิ้น ไม่ให้ชนกัน (ปรับปรุงแล้ว)
+-- ==========================================
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
-local isCollecting = false
 
+-- ==========================================
+-- ตำแหน่งเป้าหมาย
+-- ==========================================
+local campfirePos = Vector3.new(0.8, 11.7, 0.5) 	 -- เพิ่ม Y +2 ให้สูงกว่ากองไฟเดิม
+local craftTablePos = Vector3.new(21.2, 8.1, -5.5) 	-- เพิ่ม Y +2 ให้สูงกว่าตำแหน่งเดิม
+
+-- ==========================================
+-- ตัวแปรสำหรับเก็บรายการไอเทมที่เลือกใน Dropdown แบบ 'ปุ่มกดครั้งเดียว'
+-- *ต้องมั่นใจว่าตัวแปรเหล่านี้ถูกกำหนดไว้ล่วงหน้า (ในโค้ดต้นฉบับไม่ได้แสดงการกำหนดไว้)
+-- ถ้าไม่มีการกำหนด ตัวแปรจะเป็น nil ในตอนแรก ทำให้เกิด error ได้
+-- สมมติว่ามีการประกาศตัวแปรเหล่านี้พร้อมค่าเริ่มต้นที่ว่างเปล่า ({}):
+-- local junkItems = {} -- สมมติว่ามีรายการไอเทมจริงอยู่
+-- local fuelItems = {}
+-- local foodItems = {}
+-- local medicalItems = {}
+-- local equipmentItems = {}
+
+local selectedJunkItems = {}
+local selectedFuelItems = {}
+local selectedFoodItems = {}
+local selectedMedicalItems = {}
+local selectedEquipmentItems = {}
+-- ==========================================
+-- Dropdown บนสุด: เลือกเป้าหมายสำหรับทุกหมวด
+-- ==========================================
+local selectedTarget = "Campfire" -- ค่าเริ่มต้น
+
+Tabs.br:Dropdown({
+	Title = "ดึงไปที่",
+	Desc = "เลือกเป้าหมายสำหรับทุกหมวด: Player / Campfire / Scrap",
+	Values = { "Player", "Campfire", "Scrap" },
+	Multi = false,
+	AllowNone = false,
+	Callback = function(option)
+		selectedTarget = option
+	end
+})
+
+-- ==========================================
+-- ฟังก์ชันช่วย: หาตำแหน่งเป้าหมาย
+-- ==========================================
+local function getTargetCFrame()
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return CFrame.new(Vector3.new(0,5,0)) end
+
+	if selectedTarget == "Player" then
+		return CFrame.new(hrp.Position + Vector3.new(0,5,0))
+	elseif selectedTarget == "Campfire" then
+		return CFrame.new(campfirePos)
+	elseif selectedTarget == "Scrap" then
+		return CFrame.new(craftTablePos)
+	end
+
+	return CFrame.new(hrp.Position + Vector3.new(0,5,0))
+end
+
+-- ==========================================
+-- ฟังก์ชันช่วย: หา root ของโมเดลหรือพาร์ท
+-- ==========================================
 local function getRootObject(obj)
-    if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
-        return obj.Parent
-    end
-    if obj:IsA("Model") then
-        return obj
-    end
-    if obj:IsA("BasePart") then
-        return obj
-    end
-    return nil
+	if obj:IsA("BasePart") and obj.Parent and obj.Parent:IsA("Model") then
+		return obj.Parent
+	end
+	if obj:IsA("Model") then return obj end
+	if obj:IsA("BasePart") then return obj end
+	return nil
 end
 
+-- ==========================================
+-- ฟังก์ชันช่วย: ย้ายโมเดลหรือพาร์ทไปยัง CFrame
+-- ==========================================
 local function moveModelToCFrame(root, targetCFrame)
-    if root:IsA("Model") then
-        local prim = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
-        if prim then
-            if root.PrimaryPart then
-                pcall(function() root:SetPrimaryPartCFrame(targetCFrame) end)
-            else
-                local offset = targetCFrame.Position - prim.Position
-                for _, p in ipairs(root:GetDescendants()) do
-                    if p:IsA("BasePart") then
-                        p.CFrame = p.CFrame + offset
-                    end
-                end
-            end
-        end
-    elseif root:IsA("BasePart") then
-        pcall(function() root.CFrame = targetCFrame end)
-    end
+	if root:IsA("Model") then
+		local prim = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
+		if prim then
+			if root.PrimaryPart then
+				pcall(function() root:SetPrimaryPartCFrame(targetCFrame) end)
+			else
+				local offset = targetCFrame.Position - prim.Position
+				for _, p in ipairs(root:GetDescendants()) do
+					if p:IsA("BasePart") then
+						p.CFrame = p.CFrame + offset
+					end
+				end
+			end
+		end
+	elseif root:IsA("BasePart") then
+		pcall(function() root.CFrame = targetCFrame end)
+	end
 end
 
-local function bypassBringSystem(items, stopFlag)
-    if isCollecting then return end
-    isCollecting = true
+-- ==========================================
+-- ฟังก์ชันดึงของทีละชิ้น ปล่อยแล้วค่อยดึงชิ้นต่อไป
+-- *ถูกแก้ไขให้เป็นฟังก์ชันหลักสำหรับ 'ปุ่มกดครั้งเดียว'
+-- *ลบ stopFlag ออกเพราะปุ่มกดครั้งเดียวไม่ต้องเช็คสถานะการวนลูป
+-- ==========================================
+local isCollecting = false -- ตัวแปรสถานะ เพื่อป้องกันการรันซ้ำซ้อนจากการกดปุ่มรัวๆ
 
-    local char = player.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then
-        isCollecting = false
-        return
-    end
+local function bypassBringSystem(items)
+	if isCollecting then return end -- ถ้ากำลังทำงานอยู่ ไม่ต้องทำซ้ำ
+	isCollecting = true
 
-    local stackPos = hrp.Position + Vector3.new(0, 5, 0)
+	local char = player.Character
+	local hrp = char and char:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		isCollecting = false
+		return
+	end
 
-    local searchContainers = {}
-    if Workspace:FindFirstChild("Items") then
-        table.insert(searchContainers, Workspace.Items)
-    end
-    table.insert(searchContainers, Workspace)
+	local searchContainers = {}
+	if Workspace:FindFirstChild("Items") then
+		table.insert(searchContainers, Workspace.Items)
+	end
+	table.insert(searchContainers, Workspace)
+    
+    local itemsFoundAndMoved = 0 -- นับจำนวนไอเทมที่ดึงได้
 
-    for _, itemName in ipairs(items) do
-        if stopFlag and not stopFlag() then break end
+	for _, itemName in ipairs(items) do
+		local seenRoots = {}
 
-        local seenRoots = {}
+		-- ลูปนี้จะวนหาและดึงไอเทมทั้งหมดของ itemName ที่พบในเกมจนกว่าจะหมด
+		while true do
+			local itemFoundInIteration = false -- ใช้เช็คว่ารอบนี้ดึงไอเทมไปแล้วหรือไม่
+            
+			for _, container in ipairs(searchContainers) do
+				for _, obj in ipairs(container:GetDescendants()) do
+                    
+                    -- ใช้ obj:IsA("BasePart") หรือ obj:IsA("Model") ก่อน เพื่อความเร็ว
+                    if not (obj:IsA("BasePart") or obj:IsA("Model")) then continue end
 
-        for _, container in ipairs(searchContainers) do
-            for _, obj in ipairs(container:GetDescendants()) do
-                if stopFlag and not stopFlag() then break end
-
-                local root = getRootObject(obj)
-                if not root then continue end
-                if root:IsDescendantOf(char) then continue end
-
-                if root.Name == itemName then
+					local root = getRootObject(obj)
+					if not root then continue end
+					if root:IsDescendantOf(char) then continue end
+					if root.Name ~= itemName then continue end
+                    
+                    -- ตรวจสอบว่าเคยถูกดึงไปแล้วในรอบค้นหานี้หรือไม่ (ป้องกันการดึงซ้ำซ้อน)
                     if seenRoots[root] then continue end
-                    seenRoots[root] = true
+                    seenRoots[root] = true 
+                    
+                    itemFoundInIteration = true -- พบไอเทมที่ต้องดึงแล้ว
+                    itemsFoundAndMoved = itemsFoundAndMoved + 1
 
-                    local mover = nil
-                    if root:IsA("Model") then
-                        mover = root.PrimaryPart or root:FindFirstChildWhichIsA("BasePart")
-                    elseif root:IsA("BasePart") then
-                        mover = root
-                    end
-                    if not mover then continue end
+					-- ดึงทีละชิ้น
+					local targetCFrame = getTargetCFrame()
 
-                    task.spawn(function()
-                        local targetCFrame = CFrame.new(stackPos)
+					-- Anchored
+					for _, p in ipairs(root:GetDescendants()) do
+						if p:IsA("BasePart") then
+							p.Anchored = true
+						end
+					end
 
-                        pcall(function()
-                            for _, p in ipairs((root:GetDescendants())) do
-                                if p:IsA("BasePart") then
-                                    p.Anchored = true
-                                end
-                            end
-                        end)
+					-- Move
+					moveModelToCFrame(root, targetCFrame)
+					task.wait(0.01)
 
-                        pcall(function()
-                            moveModelToCFrame(root, targetCFrame)
-                        end)
+					-- ปล่อย
+					for _, p in ipairs(root:GetDescendants()) do
+						if p:IsA("BasePart") then
+							p.Anchored = false
+							p.Velocity = Vector3.new(0, -6, 0)
+						end
+					end
 
-                        task.wait(0.08)
-                        pcall(function()
-                            for _, p in ipairs((root:GetDescendants())) do
-                                if p:IsA("BasePart") then
-                                    p.Anchored = false
-                                    p.Velocity = Vector3.new(0, -6, 0)
-                                end
-                            end
-                        end)
-                    end)
-
-                    task.wait(0.05)
+					-- รอของปล่อยก่อนค่อยดึงชิ้นต่อไป
+					task.wait(0.10)
+                    
+                    -- **แก้ไขปัญหา GOTO:**
+                    -- ใช้ 'break' เพื่อออกจากการค้นหาในลูป 'for _, obj...' 
+                    -- เมื่อดึงไอเทมได้ 1 ชิ้นแล้ว
+                    -- จากนั้น ลูป 'while true' จะเริ่มทำงานซ้ำเพื่อค้นหาไอเทมชิ้นถัดไป
+                    break 
+				end
+                
+                -- หากมีการ break จากลูปด้านในสุด (เพราะดึงของได้ 1 ชิ้น) ให้ออกลูป container ด้วย
+                if itemFoundInIteration then
+                    break
                 end
-            end
-        end
-    end
+			end
 
-    isCollecting = false
+			-- ถ้าวนลูปทั้งหมดแล้วไม่เจอไอเทม itemName อีกแล้ว ให้เลิกดึงไอเทมนี้
+			if not itemFoundInIteration then
+				break
+			end
+            
+            -- ถ้าพบไอเทม ให้อยู่ในลูป 'while true' และหน่วงเวลาสั้นๆ ก่อนค้นหาไอเทมชื่อเดิมชิ้นถัดไป
+            task.wait(0.01) 
+		end
+	end
+    
+    -- เมื่อทำงานเสร็จสิ้น
+	isCollecting = false
 end
 
+-- ==========================================
+-- ฟังก์ชันสร้าง UI สำหรับแต่ละหมวด (เวอร์ชั่น 'ปุ่มกดครั้งเดียว')
+-- ==========================================
+-- *ลบ setupCategoryUI เดิมที่ใช้ Toggle ออก
+-- *นำโค้ดสำหรับสร้าง Dropdown และ Button สำหรับแต่ละหมวดมาต่อท้ายแทน
+
 -- ===================================================
--- 🧩 เพิ่มในแท็บ Tabs.br (UI แต่ละหมวด)
+-- 🧩 เพิ่มในแท็บ Tabs.br (UI แต่ละหมวด) แบบปุ่มกดครั้งเดียว
 -- ===================================================
 
+-- ฟังก์ชันช่วยสำหรับปุ่มกด (เรียก bypassBringSystem แค่ครั้งเดียว)
+local function pullItemsOnce(itemList)
+	if isCollecting then return end -- ป้องกันการกดซ้ำซ้อน
+    
+    -- ตรวจสอบว่ามีไอเทมถูกเลือกหรือไม่
+    if itemList and #itemList > 0 then
+        -- ใช้ task.spawn เพื่อให้สคริปต์ UI หลักไม่ค้างขณะที่กำลังดึงของ
+        task.spawn(function()
+            bypassBringSystem(itemList)
+        end)
+    -- else
+        -- print("ไม่ได้เลือกไอเทมที่จะดึง")
+    end
+end
+
+-- ==============================
+-- 💠 เศษเหล็ก
+-- ==============================
 Tabs.br:Section({ Title = "เศษเหล็ก", Icon = "box" })
+
 Tabs.br:Dropdown({
 	Title = "เลือกเศษเหล็ก",
-	Desc = "เลือกของที่จะดึงมา",
-	Values = junkItems,
+	Desc = "เลือกของที่จะดึงมาทั้งหมด",
+	Values = junkItems, -- ต้องมั่นใจว่าตัวแปร junkItems ถูกกำหนดไว้และมีข้อมูล
 	Multi = true,
 	AllowNone = true,
 	Callback = function(options)
 		selectedJunkItems = options
 	end
 })
-Tabs.br:Toggle({
-	Title = "ดึงเศษเหล็ก",
-	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
-	Default = false,
-	Callback = function(value)
-		junkToggleEnabled = value
-		if value then
-			if #selectedJunkItems > 0 then
-				junkLoopRunning = true
-				spawn(function()
-					while junkLoopRunning and junkToggleEnabled do
-						bypassBringSystem(selectedJunkItems, function() return junkToggleEnabled end)
-						for i = 0, 3, 0.1 do
-							if not junkToggleEnabled then break end
-							wait(0.1)
-						end
-					end
-					junkLoopRunning = false
-				end)
-			else
-				junkToggleEnabled = false
-			end
-		else
-			junkLoopRunning = false
-		end
+
+Tabs.br:Button({
+	Title = "ดึงเศษเหล็ก (กดครั้งเดียว)",
+	Callback = function()
+		pullItemsOnce(selectedJunkItems)
 	end
 })
 
+-- ==============================
+-- 🔥 เชื้อเพลิง
+-- ==============================
 Tabs.br:Section({ Title = "เชื้อเพลิง", Icon = "flame" })
+
 Tabs.br:Dropdown({
 	Title = "เลือกเชื้อเพลิง",
-	Desc = "เลือกของที่จะดึง",
-	Values = fuelItems,
+	Desc = "เลือกของที่จะดึงมาทั้งหมด",
+	Values = fuelItems, -- ต้องมั่นใจว่าตัวแปร fuelItems ถูกกำหนดไว้และมีข้อมูล
 	Multi = true,
 	AllowNone = true,
 	Callback = function(options)
 		selectedFuelItems = options
 	end
 })
-Tabs.br:Toggle({
-	Title = "ดึงเชื้อเพลิง",
-	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
-	Default = false,
-	Callback = function(value)
-		fuelToggleEnabled = value
-		if value then
-			if #selectedFuelItems > 0 then
-				fuelLoopRunning = true
-				spawn(function()
-					while fuelLoopRunning and fuelToggleEnabled do
-						bypassBringSystem(selectedFuelItems, function() return fuelToggleEnabled end)
-						for i = 0, 3, 0.1 do
-							if not fuelToggleEnabled then break end
-							wait(0.1)
-						end
-					end
-					fuelLoopRunning = false
-				end)
-			else
-				fuelToggleEnabled = false
-			end
-		else
-			fuelLoopRunning = false
-		end
+
+Tabs.br:Button({
+	Title = "ดึงเชื้อเพลิง (กดครั้งเดียว)",
+	Callback = function()
+		pullItemsOnce(selectedFuelItems)
 	end
 })
 
+-- ==============================
+-- 🍴 อาหาร
+-- ==============================
 Tabs.br:Section({ Title = "อาหาร", Icon = "utensils" })
+
 Tabs.br:Dropdown({
 	Title = "เลือกอาหาร",
-	Desc = "เลือกของที่จะดึงมา",
-	Values = foodItems,
+	Desc = "เลือกของที่จะดึงมาทั้งหมด",
+	Values = foodItems, -- ต้องมั่นใจว่าตัวแปร foodItems ถูกกำหนดไว้และมีข้อมูล
 	Multi = true,
 	AllowNone = true,
 	Callback = function(options)
 		selectedFoodItems = options
 	end
 })
-Tabs.br:Toggle({
-	Title = "ดึงอาหาร",
-	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
-	Default = false,
-	Callback = function(value)
-		foodToggleEnabled = value
-		if value then
-			if #selectedFoodItems > 0 then
-				foodLoopRunning = true
-				spawn(function()
-					while foodLoopRunning and foodToggleEnabled do
-						bypassBringSystem(selectedFoodItems, function() return foodToggleEnabled end)
-						for i = 0, 3, 0.1 do
-							if not foodToggleEnabled then break end
-							wait(0.1)
-						end
-					end
-					foodLoopRunning = false
-				end)
-			else
-				foodToggleEnabled = false
-			end
-		else
-			foodLoopRunning = false
-		end
+
+Tabs.br:Button({
+	Title = "ดึงอาหาร (กดครั้งเดียว)",
+	Callback = function()
+		pullItemsOnce(selectedFoodItems)
 	end
 })
 
+-- ==============================
+-- 💊 ยา
+-- ==============================
 Tabs.br:Section({ Title = "ยา", Icon = "bandage" })
+
 Tabs.br:Dropdown({
 	Title = "เลือกยารักษา",
-	Desc = "เลือกของที่จะดึงมา",
-	Values = medicalItems,
+	Desc = "เลือกของที่จะดึงมาทั้งหมด",
+	Values = medicalItems, -- ต้องมั่นใจว่าตัวแปร medicalItems ถูกกำหนดไว้และมีข้อมูล
 	Multi = true,
 	AllowNone = true,
 	Callback = function(options)
 		selectedMedicalItems = options
 	end
 })
-Tabs.br:Toggle({
-	Title = "ดึงยา",
-	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
-	Default = false,
-	Callback = function(value)
-		medicalToggleEnabled = value
-		if value then
-			if #selectedMedicalItems > 0 then
-				medicalLoopRunning = true
-				spawn(function()
-					while medicalLoopRunning and medicalToggleEnabled do
-						bypassBringSystem(selectedMedicalItems, function() return medicalToggleEnabled end)
-						for i = 0, 3, 0.1 do
-							if not medicalToggleEnabled then break end
-							wait(0.1)
-						end
-					end
-					medicalLoopRunning = false
-				end)
-			else
-				medicalToggleEnabled = false
-			end
-		else
-			medicalLoopRunning = false
-		end
+
+Tabs.br:Button({
+	Title = "ดึงยา (กดครั้งเดียว)",
+	Callback = function()
+		pullItemsOnce(selectedMedicalItems)
 	end
 })
 
+-- ==============================
+-- ⚔️ อุปกรณ์
+-- ==============================
 Tabs.br:Section({ Title = "อุปกรณ์", Icon = "sword" })
+
 Tabs.br:Dropdown({
 	Title = "เลือกอุปกรณ์",
-	Desc = "เลือกของที่จะดึงมา",
-	Values = equipmentItems,
+	Desc = "เลือกของที่จะดึงมาทั้งหมด",
+	Values = equipmentItems, -- ต้องมั่นใจว่าตัวแปร equipmentItems ถูกกำหนดไว้และมีข้อมูล
 	Multi = true,
 	AllowNone = true,
 	Callback = function(options)
 		selectedEquipmentItems = options
 	end
 })
-Tabs.br:Toggle({
-	Title = "ดึงอุปกรณ์",
-	Desc = "ก่อนดึง ต้องปลดล็อกโซน 1 ก่อน!",
-	Default = false,
-	Callback = function(value)
-		equipmentToggleEnabled = value
-		if value then
-			if #selectedEquipmentItems > 0 then
-				equipmentLoopRunning = true
-				spawn(function()
-					while equipmentLoopRunning and equipmentToggleEnabled do
-						bypassBringSystem(selectedEquipmentItems, function() return equipmentToggleEnabled end)
-						for i = 0, 3, 0.1 do
-							if not equipmentToggleEnabled then break end
-							wait(0.1)
-						end
-					end
-					equipmentLoopRunning = false
-				end)
-			else
-				equipmentToggleEnabled = false
-			end
-		else
-			equipmentLoopRunning = false
-		end
+
+Tabs.br:Button({
+	Title = "ดึงอุปกรณ์ (กดครั้งเดียว)",
+	Callback = function()
+		pullItemsOnce(selectedEquipmentItems)
 	end
 })
 
