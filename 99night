@@ -879,7 +879,7 @@ local Window = WindUI:CreateWindow({
     Title = "Dual Hub",
     Icon = "rbxassetid://115670808395939", 
     Author = "99 Night in the Forest | Free Version",
-    Folder = "Dual Hub",
+    Folder = "Dual Hub V2.2.1",
     Size = UDim2.fromOffset(500, 350),
     Transparent = getgenv().TransparencyEnabled,
     Theme = "Purple",
@@ -1370,56 +1370,74 @@ Tabs.Tp:Button({
 
 Tabs.Tp:Section({ Title = "หีบ", Icon = "box" })
 
-local ChestDropdown = Tabs.Tp:Dropdown({
-    Title = "เลือกหีบ",
-    Values = currentChestNames,
-    Multi = false,
-    AllowNone = true,
-    Callback = function(options)
-        selectedChest = options[#options] or currentChestNames[1] or nil
-    end
-})
-
-Tabs.Tp:Button({
-    Title = "รีเฟรชรายการ",
+local AutoChestToggle = Tabs.Tp:Toggle({
+    Title = "ออโต้เปิดหีบทั้งหมด",
     Locked = false,
-    Callback = function()
-        currentChests, currentChestNames = getChests()
-        if #currentChestNames > 0 then
-            selectedChest = currentChestNames[1]
-            ChestDropdown:Refresh(currentChestNames)
-        else
-            selectedChest = nil
-            ChestDropdown:Refresh({ "ไม่พบหีบ" })
+    Value = false,
+    Callback = function(v)
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        if not _G.AutoChestData then
+            _G.AutoChestData = {running = false, originalCFrame = nil}
         end
-    end
-})
 
-Tabs.Tp:Button({
-    Title = "วาปไปหีบ",
-    Locked = false,
-    Callback = function()
-        if selectedChest and currentChests then
-            local chestIndex = 1
-            for i, name in ipairs(currentChestNames) do
-                if name == selectedChest then
-                    chestIndex = i
-                    break
+        local function getChests()
+            local chests = {}
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("Model") and string.find(obj.Name, "Item Chest") then
+                    table.insert(chests, obj)
                 end
             end
-            local targetChest = currentChests[chestIndex]
-            if targetChest then
-                local part = targetChest.PrimaryPart or targetChest:FindFirstChildWhichIsA("BasePart")
-                if part and game.Players.LocalPlayer.Character then
-                    local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        hrp.CFrame = part.CFrame + Vector3.new(0, 5, 0)
+            return chests
+        end
+
+        local function getPrompt(model)
+            local prompts = {}
+            for _, obj in ipairs(model:GetDescendants()) do
+                if obj:IsA("ProximityPrompt") then
+                    table.insert(prompts, obj)
+                end
+            end
+            return prompts
+        end
+
+        if v then
+            if _G.AutoChestData.running then return end
+            _G.AutoChestData.running = true
+            _G.AutoChestData.originalCFrame = humanoidRootPart.CFrame
+            task.spawn(function()
+                while _G.AutoChestData.running do
+                    local chests = getChests()
+                    for _, chest in ipairs(chests) do
+                        if not _G.AutoChestData.running then break end
+                        local part = chest.PrimaryPart or chest:FindFirstChildWhichIsA("BasePart")
+                        if part then
+                            humanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 6, 0)
+                            local prompts = getPrompt(chest)
+                            for _, prompt in ipairs(prompts) do
+                                fireproximityprompt(prompt, math.huge)
+                            end
+                            local t = tick()
+                            while _G.AutoChestData.running and tick() - t < 0.75 do task.wait() end
+                        end
                     end
+                    task.wait(0.1)
                 end
+            end)
+        else
+            _G.AutoChestData.running = false
+            if _G.AutoChestData.originalCFrame then
+                humanoidRootPart.CFrame = _G.AutoChestData.originalCFrame
             end
         end
     end
 })
+
+
+
+
 
 -- ==========================================
 -- 🛠️ ระบบดึงของทีละชิ้น ไม่ให้ชนกัน (ปรับปรุงแล้ว)
@@ -2223,148 +2241,150 @@ Tabs.Anti:Toggle({
 
 
 
-Tabs.Vision:Section({ Title = "การมองเห็น", Icon = "eye" })
-
 local Lighting = game:GetService("Lighting")
 
--- เก็บ parent เดิมทั้งหมด
-local originalParents = {}
-for _, name in ipairs({"Sky", "Bloom", "CampfireEffect", "ColorCorrection"}) do
-    local obj = Lighting:FindFirstChild(name)
-    if obj then
-        originalParents[name] = obj.Parent
-    end
-end
+Tabs.Vision:Section({ Title = "การมองเห็น", Icon = "eye" })
 
--- เก็บค่าการส่องสว่างและกราฟิก
+-- เก็บค่า Lighting เดิม
 local originalLightingValues = {
-    Brightness = Lighting.Brightness,
-    Ambient = Lighting.Ambient,
-    OutdoorAmbient = Lighting.OutdoorAmbient,
-    ShadowSoftness = Lighting.ShadowSoftness,
-    GlobalShadows = Lighting.GlobalShadows,
-    Technology = Lighting.Technology,
-    ClockTime = Lighting.ClockTime,
-    FogStart = Lighting.FogStart,
-    FogEnd = Lighting.FogEnd,
-    ColorShift_Top = Lighting.ColorShift_Top,
-    ColorShift_Bottom = Lighting.ColorShift_Bottom
+	Brightness = Lighting.Brightness,
+	Ambient = Lighting.Ambient,
+	OutdoorAmbient = Lighting.OutdoorAmbient,
+	ShadowSoftness = Lighting.ShadowSoftness,
+	GlobalShadows = Lighting.GlobalShadows,
+	Technology = Lighting.Technology,
+	ClockTime = Lighting.ClockTime,
+	FogStart = Lighting.FogStart,
+	FogEnd = Lighting.FogEnd,
+	ColorShift_Top = Lighting.ColorShift_Top,
+	ColorShift_Bottom = Lighting.ColorShift_Bottom
 }
 
--- ฟังก์ชันทั่วไปสำหรับเปิด/ปิด parent
-local function setParent(name, parent)
-    local obj = Lighting:FindFirstChild(name)
-    if obj then
-        obj.Parent = parent
-    end
+-- เก็บค่าล็อค
+local lockedValues = {}
+local connections = {}
+
+-- ฟังก์ชันเปิดการล็อค
+local function lockLightingProperty(propName, value)
+	lockedValues[propName] = value
+	if connections[propName] then connections[propName]:Disconnect() end
+	connections[propName] = Lighting:GetPropertyChangedSignal(propName):Connect(function()
+		if Lighting[propName] ~= value then
+			Lighting[propName] = value
+		end
+	end)
+	Lighting[propName] = value
 end
 
--- สว่างเต็มที่
+-- ฟังก์ชันปลดล็อค
+local function unlockLightingProperty(propName)
+	if connections[propName] then
+		connections[propName]:Disconnect()
+		connections[propName] = nil
+	end
+	if originalLightingValues[propName] then
+		Lighting[propName] = originalLightingValues[propName]
+	end
+	lockedValues[propName] = nil
+end
+
+------------------------------------------------
+-- 🔆 สว่างเต็มที่
+------------------------------------------------
 Tabs.Vision:Toggle({
-    Title = "สว่างเต็มที่",
-    Value = false,
-    Callback = function(state)
-        if state then
-            Lighting.ClockTime = 14
-            Lighting.Brightness = 2.2
-            Lighting.Ambient = Color3.new(1,1,1)
-            Lighting.OutdoorAmbient = Color3.new(1,1,1)
-            Lighting.ShadowSoftness = 0
-            Lighting.GlobalShadows = false
-            Lighting.Technology = Enum.Technology.Compatibility
-        else
-            for k,v in pairs(originalLightingValues) do
-                Lighting[k] = v
-            end
-        end
-    end
+	Title = "สว่างเต็มที่",
+	Value = false,
+	Callback = function(state)
+		if state then
+			lockLightingProperty("ClockTime", 14)
+			lockLightingProperty("Brightness", 2.2)
+			lockLightingProperty("Ambient", Color3.new(1,1,1))
+			lockLightingProperty("OutdoorAmbient", Color3.new(1,1,1))
+			lockLightingProperty("ShadowSoftness", 0)
+			lockLightingProperty("GlobalShadows", false)
+			lockLightingProperty("Technology", Enum.Technology.Compatibility)
+		else
+			for _, prop in ipairs({"ClockTime","Brightness","Ambient","OutdoorAmbient","ShadowSoftness","GlobalShadows","Technology"}) do
+				unlockLightingProperty(prop)
+			end
+		end
+	end
 })
 
--- ไม่มีหมอก
+------------------------------------------------
+-- 🌫 ไม่มีหมอก
+------------------------------------------------
 Tabs.Vision:Toggle({
-    Title = "ไม่มีหมอก",
-    Value = false,
-    Callback = function(state)
-        if state then
-            Lighting.FogStart = 99999
-            Lighting.FogEnd = 100000
-        else
-            Lighting.FogStart = originalLightingValues.FogStart
-            Lighting.FogEnd = originalLightingValues.FogEnd
-        end
-    end
+	Title = "ไม่มีหมอก",
+	Value = false,
+	Callback = function(state)
+		if state then
+			lockLightingProperty("FogStart", 99999)
+			lockLightingProperty("FogEnd", 100000)
+		else
+			unlockLightingProperty("FogStart")
+			unlockLightingProperty("FogEnd")
+		end
+	end
 })
 
--- สีสันสดใส
+------------------------------------------------
+-- 🎨 สีสันสดใส
+------------------------------------------------
 Tabs.Vision:Toggle({
-    Title = "สีสันสดใส",
-    Value = false,
-    Callback = function(state)
-        if state then
-            Lighting.ClockTime = 14
-            Lighting.GlobalShadows = false
-            Lighting.Ambient = Color3.fromRGB(180,180,180)
-            Lighting.OutdoorAmbient = Color3.fromRGB(170,170,170)
-            Lighting.ColorShift_Top = Color3.fromRGB(255,230,200)
-            Lighting.ColorShift_Bottom = Color3.fromRGB(200,240,255)
-        else
-            Lighting.ClockTime = originalLightingValues.ClockTime
-            Lighting.GlobalShadows = originalLightingValues.GlobalShadows
-            Lighting.Ambient = originalLightingValues.Ambient
-            Lighting.OutdoorAmbient = originalLightingValues.OutdoorAmbient
-            Lighting.ColorShift_Top = originalLightingValues.ColorShift_Top
-            Lighting.ColorShift_Bottom = originalLightingValues.ColorShift_Bottom
-        end
-    end
+	Title = "สีสันสดใส",
+	Value = false,
+	Callback = function(state)
+		if state then
+			lockLightingProperty("ClockTime", 14)
+			lockLightingProperty("GlobalShadows", false)
+			lockLightingProperty("Ambient", Color3.fromRGB(180,180,180))
+			lockLightingProperty("OutdoorAmbient", Color3.fromRGB(170,170,170))
+			lockLightingProperty("ColorShift_Top", Color3.fromRGB(255,230,200))
+			lockLightingProperty("ColorShift_Bottom", Color3.fromRGB(200,240,255))
+		else
+			for _, prop in ipairs({"ClockTime","GlobalShadows","Ambient","OutdoorAmbient","ColorShift_Top","ColorShift_Bottom"}) do
+				unlockLightingProperty(prop)
+			end
+		end
+	end
 })
 
--- Boost FPS (ปรับภาพเป็นดินน้ำมัน + ปิดเงา)
-local boostFPSToggle = false
+------------------------------------------------
+-- ⚙️ Boost FPS
+------------------------------------------------
 local originalMaterials = {}
 local originalShadows = {}
+local boosted = false
 
 Tabs.Vision:Toggle({
-    Title = "Boost FPS",
-    Value = false,
-    Callback = function(state)
-        boostFPSToggle = state
-
-        if state then
-            -- ปรับ BasePart เป็น SmoothPlastic (ดินน้ำมัน) และปิดเงา
-            for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") then
-                    -- เก็บค่าของเดิม
-                    if not originalMaterials[obj] then originalMaterials[obj] = obj.Material end
-                    if not originalShadows[obj] then originalShadows[obj] = obj.CastShadow end
-
-                    obj.Material = Enum.Material.SmoothPlastic
-                    obj.CastShadow = false
-                end
-            end
-
-            -- ปรับ Lighting เงา GlobalShadows
-            local Lighting = game:GetService("Lighting")
-            Lighting.GlobalShadows = false
-
-        else
-            -- คืนค่า BasePart เดิม
-            for obj, mat in pairs(originalMaterials) do
-                if obj and obj:IsA("BasePart") then
-                    obj.Material = mat
-                end
-            end
-
-            for obj, shadow in pairs(originalShadows) do
-                if obj and obj:IsA("BasePart") then
-                    obj.CastShadow = shadow
-                end
-            end
-
-            -- คืนค่า Lighting GlobalShadows เดิม
-            local Lighting = game:GetService("Lighting")
-            Lighting.GlobalShadows = originalLightingValues.GlobalShadows
-        end
-    end
+	Title = "Boost FPS",
+	Value = false,
+	Callback = function(state)
+		if state then
+			boosted = true
+			for _, obj in ipairs(workspace:GetDescendants()) do
+				if obj:IsA("BasePart") then
+					if not originalMaterials[obj] then
+						originalMaterials[obj] = obj.Material
+						originalShadows[obj] = obj.CastShadow
+					end
+					obj.Material = Enum.Material.SmoothPlastic
+					obj.CastShadow = false
+				end
+			end
+			lockLightingProperty("GlobalShadows", false)
+		else
+			boosted = false
+			for obj, mat in pairs(originalMaterials) do
+				if obj and obj:IsA("BasePart") then
+					obj.Material = mat
+					obj.CastShadow = originalShadows[obj]
+				end
+			end
+			unlockLightingProperty("GlobalShadows")
+		end
+	end
 })
 
 
