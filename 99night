@@ -1246,16 +1246,7 @@ Tabs.Tp:Button({
     end
 })
 
-Tabs.Tp:Button({
-    Title = "วาปไปพ่อค้า (Bunny Foot)",
-    Callback = function()
-        local pos = Vector3.new(-37.08, 3.98, -16.33)
-        local player = game:GetService("Players").LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character:WaitForChild("HumanoidRootPart")
-        hrp.CFrame = CFrame.new(pos)
-    end
-})
+
 
 Tabs.Tp:Section({ Title = "ต้นไม้", Icon = "tree-deciduous" })
 
