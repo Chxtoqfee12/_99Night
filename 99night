@@ -364,138 +364,6 @@ local autocookItems = {"Morsel", "Steak", "Ribs", "Salmon", "Mackerel"}
 local autoCookEnabledItems = {}
 local autoCookEnabled = false
 
-local function getAnyToolWithDamageID(isChopAura)
-    for toolName, damageID in pairs(toolsDamageIDs) do
-        if isChopAura and toolName ~= "Old Axe" and toolName ~= "Good Axe" and toolName ~= "Strong Axe" then
-            continue
-        end
-        local tool = LocalPlayer:FindFirstChild("Inventory") and LocalPlayer.Inventory:FindFirstChild(toolName)
-        if tool then
-            return tool, damageID
-        end
-    end
-    return nil, nil
-end
-
-local function equipTool(tool)
-    if tool then
-        ReplicatedStorage:WaitForChild("RemoteEvents").EquipItemHandle:FireServer("FireAllClients", tool)
-    end
-end
-
-local function unequipTool(tool)
-    if tool then
-        ReplicatedStorage:WaitForChild("RemoteEvents").UnequipItemHandle:FireServer("FireAllClients", tool)
-    end
-end
-
-local function killAuraLoop()
-    while killAuraToggle do
-        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local tool, damageID = getAnyToolWithDamageID(false)
-            if tool and damageID then
-                equipTool(tool)
-                for _, mob in ipairs(Workspace.Characters:GetChildren()) do
-                    if mob:IsA("Model") then
-                        local part = mob:FindFirstChildWhichIsA("BasePart")
-                        if part and (part.Position - hrp.Position).Magnitude <= auraRadius then
-                            pcall(function()
-                                ReplicatedStorage:WaitForChild("RemoteEvents").ToolDamageObject:InvokeServer(
-                                    mob,
-                                    tool,
-                                    damageID,
-                                    CFrame.new(part.Position)
-                                )
-                            end)
-                        end
-                    end
-                end
-                task.wait(0.1)
-            else
-                task.wait(1)
-            end
-        else
-            task.wait(0.5)
-        end
-    end
-end
-
-local AutoPlantToggle = false
-
-local function autoplant()
-    while AutoPlantToggle do
-        local args = {
-            Instance.new("Model"),
-            Vector3.new(-41.2053, 1.0633, 29.2236)
-        }
-        game:GetService("ReplicatedStorage")
-            :WaitForChild("RemoteEvents")
-            :WaitForChild("RequestPlantItem")
-            :InvokeServer(unpack(args))
-        task.wait(1)
-    end
-end
-
-local function chopAuraLoop()
-    while chopAuraToggle do
-        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local tool, baseDamageID = getAnyToolWithDamageID(true)
-            if tool and baseDamageID then
-                equipTool(tool)
-                currentammount = currentammount + 1
-                local trees = {}
-                local map = Workspace:FindFirstChild("Map")
-                if map then
-                    if map:FindFirstChild("Foliage") then
-                        for _, obj in ipairs(map.Foliage:GetChildren()) do
-                            if obj:IsA("Model") and (obj.Name == "Small Tree" or obj.Name == "Snowy Small Tree") then
-                                table.insert(trees, obj)
-                            end
-                        end
-                    end
-                    if map:FindFirstChild("Landmarks") then
-                        for _, obj in ipairs(map.Landmarks:GetChildren()) do
-                            if obj:IsA("Model") and obj.Name == "Small Tree" then
-                                table.insert(trees, obj)
-                            end
-                        end
-                    end
-                end
-                for _, tree in ipairs(trees) do
-                    local trunk = tree:FindFirstChild("Trunk")
-                    if trunk and trunk:IsA("BasePart") and (trunk.Position - hrp.Position).Magnitude <= auraRadius then
-                        local alreadyammount = false
-                        task.spawn(function()
-                            while chopAuraToggle and tree and tree.Parent and not alreadyammount do
-                                alreadyammount = true
-                                currentammount = currentammount + 1
-                                pcall(function()
-                                    ReplicatedStorage:WaitForChild("RemoteEvents").ToolDamageObject:InvokeServer(
-                                        tree,
-                                        tool,
-                                        tostring(currentammount) .. "_7367831688",
-                                        CFrame.new(-2.962610244751, 4.5547881126404, -75.950843811035, 0.89621275663376, -1.3894891459643e-08, 0.44362446665764, -7.994568895775e-10, 1, 3.293635941759e-08, -0.44362446665764, -2.9872644802253e-08, 0.89621275663376)
-                                    )
-                                end)
-                                task.wait(0.5)
-                            end
-                        end)
-                    end
-                end
-                task.wait(0.1)
-            else
-                task.wait(1)
-            end
-        else
-            task.wait(0.5)
-        end
-    end
-end
-
 function wiki(nome)
     local c = 0
     for _, i in ipairs(Workspace.Items:GetChildren()) do
@@ -1027,6 +895,122 @@ Tabs.Auto:Toggle({
         end
     end
 })
+
+local function getAnyToolWithDamageID(isChopAura)
+    for toolName, damageID in pairs(toolsDamageIDs) do
+        if isChopAura and toolName ~= "Old Axe" and toolName ~= "Good Axe" and toolName ~= "Strong Axe" then
+            continue
+        end
+        local tool = LocalPlayer:FindFirstChild("Inventory") and LocalPlayer.Inventory:FindFirstChild(toolName)
+        if tool then
+            return tool, damageID
+        end
+    end
+    return nil, nil
+end
+
+local function equipTool(tool)
+    if tool then
+        ReplicatedStorage:WaitForChild("RemoteEvents").EquipItemHandle:FireServer("FireAllClients", tool)
+    end
+end
+
+local function unequipTool(tool)
+    if tool then
+        ReplicatedStorage:WaitForChild("RemoteEvents").UnequipItemHandle:FireServer("FireAllClients", tool)
+    end
+end
+
+local function killAuraLoop()
+    while killAuraToggle do
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local tool, damageID = getAnyToolWithDamageID(false)
+            if tool and damageID then
+                equipTool(tool)
+                for _, mob in ipairs(Workspace.Characters:GetChildren()) do
+                    if mob:IsA("Model") then
+                        local part = mob:FindFirstChildWhichIsA("BasePart")
+                        if part and (part.Position - hrp.Position).Magnitude <= auraRadius then
+                            pcall(function()
+                                ReplicatedStorage:WaitForChild("RemoteEvents").ToolDamageObject:InvokeServer(
+                                    mob,
+                                    tool,
+                                    damageID,
+                                    CFrame.new(part.Position)
+                                )
+                            end)
+                        end
+                    end
+                end
+                task.wait(0.1)
+            else
+                task.wait(1)
+            end
+        else
+            task.wait(0.5)
+        end
+    end
+end
+
+local function chopAuraLoop()
+    while chopAuraToggle do
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local tool, baseDamageID = getAnyToolWithDamageID(true)
+            if tool and baseDamageID then
+                equipTool(tool)
+                currentammount = currentammount + 1
+                local trees = {}
+                local map = Workspace:FindFirstChild("Map")
+                if map then
+                    if map:FindFirstChild("Foliage") then
+                        for _, obj in ipairs(map.Foliage:GetChildren()) do
+                            if obj:IsA("Model") and (obj.Name == "Small Tree" or obj.Name == "Snowy Small Tree") then
+                                table.insert(trees, obj)
+                            end
+                        end
+                    end
+                    if map:FindFirstChild("Landmarks") then
+                        for _, obj in ipairs(map.Landmarks:GetChildren()) do
+                            if obj:IsA("Model") and obj.Name == "Small Tree" then
+                                table.insert(trees, obj)
+                            end
+                        end
+                    end
+                end
+                for _, tree in ipairs(trees) do
+                    local trunk = tree:FindFirstChild("Trunk")
+                    if trunk and trunk:IsA("BasePart") and (trunk.Position - hrp.Position).Magnitude <= auraRadius then
+                        local alreadyammount = false
+                        task.spawn(function()
+                            while chopAuraToggle and tree and tree.Parent and not alreadyammount do
+                                alreadyammount = true
+                                currentammount = currentammount + 1
+                                pcall(function()
+                                    ReplicatedStorage:WaitForChild("RemoteEvents").ToolDamageObject:InvokeServer(
+                                        tree,
+                                        tool,
+                                        tostring(currentammount) .. "_7367831688",
+                                        CFrame.new(-2.962610244751, 4.5547881126404, -75.950843811035, 0.89621275663376, -1.3894891459643e-08, 0.44362446665764, -7.994568895775e-10, 1, 3.293635941759e-08, -0.44362446665764, -2.9872644802253e-08, 0.89621275663376)
+                                    )
+                                end)
+                                task.wait(0.5)
+                            end
+                        end)
+                    end
+                end
+                task.wait(0.1)
+            else
+                task.wait(1)
+            end
+        else
+            task.wait(0.5)
+        end
+    end
+end
 
 Tabs.Auto:Section({ Title = "อัปเกรดกองไฟอัตโนมัติ", Icon = "flame" })
 
@@ -2126,107 +2110,94 @@ Tabs.esp:Toggle({
 
 Tabs.Anti:Section({ Title = "ป้องกันมอนสเตอร์", Icon = "skull" })
 
+-- ==============================
+-- ⚡ Spam Ram, Deer & Owl
+-- ==============================
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local torchLoop = nil
+local Workspace = game:GetService("Workspace")
 
+-- Toggles
+local spamRamToggle = false
+local spamDeerToggle = false
+local spamOwlToggle = false
+
+-- Spam Ram
+local ramLoop
 Tabs.Anti:Toggle({
-    Title = "ตีกวางอัตโนมัติ (ต้องใช้ไฟฉาย)", 
+    Title = "สตั้น แพะ",
     Value = false,
     Callback = function(state)
+        spamRamToggle = state
         if state then
-            torchLoop = RunService.RenderStepped:Connect(function()
+            ramLoop = RunService.RenderStepped:Connect(function()
                 pcall(function()
-                    local remote = ReplicatedStorage:FindFirstChild("RemoteEvents")
-                        and ReplicatedStorage.RemoteEvents:FindFirstChild("DeerHitByTorch")
-                    local deer = workspace:FindFirstChild("Characters")
-                        and workspace.Characters:FindFirstChild("Deer")
-                    if remote and deer then
+                    local ram = Workspace:FindFirstChild("Characters") and Workspace.Characters:FindFirstChild("Ram")
+                    local remote = ReplicatedStorage:FindFirstChild("RemoteEvents") and ReplicatedStorage.RemoteEvents:FindFirstChild("MonsterHitByTorch")
+                    if ram and remote then
+                        remote:InvokeServer(ram)
+                    end
+                end)
+                task.wait(0.0001)
+            end)
+        else
+            if ramLoop then
+                ramLoop:Disconnect()
+                ramLoop = nil
+            end
+        end
+    end
+})
+
+-- Spam Deer
+local deerLoop
+Tabs.Anti:Toggle({
+    Title = "สตั้น กวาง",
+    Value = false,
+    Callback = function(state)
+        spamDeerToggle = state
+        if state then
+            deerLoop = RunService.RenderStepped:Connect(function()
+                pcall(function()
+                    local deer = Workspace:FindFirstChild("Characters") and Workspace.Characters:FindFirstChild("Deer")
+                    local remote = ReplicatedStorage:FindFirstChild("RemoteEvents") and ReplicatedStorage.RemoteEvents:FindFirstChild("MonsterHitByTorch")
+                    if deer and remote then
                         remote:InvokeServer(deer)
                     end
                 end)
-                task.wait(0.1)
+                task.wait(0.0001)
             end)
         else
-            if torchLoop then
-                torchLoop:Disconnect()
-                torchLoop = nil
+            if deerLoop then
+                deerLoop:Disconnect()
+                deerLoop = nil
             end
         end
     end
 })
 
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local HumanoidRootPart = character:WaitForChild("HumanoidRootPart")
-
--- ตั้งค่าระยะและความเร็วหลบ
-local ESCAPE_DISTANCE_OWL = 80
-local ESCAPE_SPEED_OWL = 5
-
-local ESCAPE_DISTANCE_DEER = 60
-local ESCAPE_SPEED_DEER = 4
-
-local escapeLoopOwl
-local escapeLoopDeer
-
--- Toggle หนี Owl
+-- Spam Owl
+local owlLoop
 Tabs.Anti:Toggle({
-    Title = "หลบจากนกฮูก", 
+    Title = "สตั้น นกฮูก",
     Value = false,
     Callback = function(state)
+        spamOwlToggle = state
         if state then
-            escapeLoopOwl = RunService.RenderStepped:Connect(function()
+            owlLoop = RunService.RenderStepped:Connect(function()
                 pcall(function()
-                    local owl = workspace:FindFirstChild("Characters") and workspace.Characters:FindFirstChild("Owl")
-                    if owl and owl:FindFirstChild("HumanoidRootPart") then
-                        local myPos = HumanoidRootPart.Position
-                        local owlPos = owl.HumanoidRootPart.Position
-                        local distance = (myPos - owlPos).Magnitude
-
-                        if distance < ESCAPE_DISTANCE_OWL then
-                            local direction = (myPos - owlPos).Unit
-                            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + direction * ESCAPE_SPEED_OWL
-                        end
+                    local owl = Workspace:FindFirstChild("Characters") and Workspace.Characters:FindFirstChild("Owl")
+                    local remote = ReplicatedStorage:FindFirstChild("RemoteEvents") and ReplicatedStorage.RemoteEvents:FindFirstChild("MonsterHitByTorch")
+                    if owl and remote then
+                        remote:InvokeServer(owl)
                     end
                 end)
+                task.wait(0.0001)
             end)
         else
-            if escapeLoopOwl then
-                escapeLoopOwl:Disconnect()
-                escapeLoopOwl = nil
-            end
-        end
-    end
-})
-
--- Toggle หนี Deer
-Tabs.Anti:Toggle({
-    Title = "หลบจากกวาง", 
-    Value = false,
-    Callback = function(state)
-        if state then
-            escapeLoopDeer = RunService.RenderStepped:Connect(function()
-                pcall(function()
-                    local deer = workspace:FindFirstChild("Characters") and workspace.Characters:FindFirstChild("Deer")
-                    if deer and deer:FindFirstChild("HumanoidRootPart") then
-                        local myPos = HumanoidRootPart.Position
-                        local deerPos = deer.HumanoidRootPart.Position
-                        local distance = (myPos - deerPos).Magnitude
-
-                        if distance < ESCAPE_DISTANCE_DEER then
-                            local direction = (myPos - deerPos).Unit
-                            HumanoidRootPart.CFrame = HumanoidRootPart.CFrame + direction * ESCAPE_SPEED_DEER
-                        end
-                    end
-                end)
-            end)
-        else
-            if escapeLoopDeer then
-                escapeLoopDeer:Disconnect()
-                escapeLoopDeer = nil
+            if owlLoop then
+                owlLoop:Disconnect()
+                owlLoop = nil
             end
         end
     end
