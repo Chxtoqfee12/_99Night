@@ -1796,7 +1796,7 @@ Tabs.Fly:Toggle({
 })
 
 Tabs.Fly:Slider({
-    Title = "ความเร็วบิน",
+    Title = "Fly Speed",
     Value = { Min = 1, Max = 20, Default = 1 },
     Callback = function(value)
         flySpeed = value
@@ -1808,7 +1808,7 @@ Tabs.Fly:Slider({
                         local root = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                         if root and root:FindFirstChild("BodyVelocity") then
                             local bv = root:FindFirstChild("BodyVelocity")
-                            bv.Velocity = bv.Velocity.Unit * (flySpeed * 50)
+                            bv.Velocity = bv.Velocity.Unit * (flySpeed * 50) -- Adjust velocity magnitude
                         end
                     end
                 end
@@ -1818,7 +1818,7 @@ Tabs.Fly:Slider({
 })
 
 Tabs.Fly:Toggle({
-    Title = "เปิด/ปิด บิน",
+    Title = "Enable Fly",
     Value = false,
     Callback = function(state)
         flyToggle = state
@@ -1835,27 +1835,90 @@ Tabs.Fly:Toggle({
     end
 })
 
-local Players = game:GetService("Players")
-local speed = 16
 
+
+-- ===================================================
+-- 🏃💨 ส่วนปรับความเร็วเดิน (Walk Speed) ที่ปรับปรุงแล้ว
+-- ===================================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+-- ⚙️ Global Variables (จำเป็นต้องประกาศไว้ด้านบนสุดของสคริปต์)
+local currentWalkSpeed = 16 -- ค่าเริ่มต้น
+local walkSpeedToggle = false
+local walkSpeedConnection = nil
+
+-- ฟังก์ชันตั้งค่าความเร็ว
 local function setSpeed(val)
-    local humanoid = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then humanoid.WalkSpeed = val end
+    local char = Players.LocalPlayer.Character
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+    if humanoid then 
+        humanoid.WalkSpeed = val 
+    end
 end
 
+-- ฟังก์ชันลูปเพื่อล็อคค่าความเร็วแบบเรียลไทม์
+local function lockSpeedLoop()
+    -- ตรวจสอบว่ามี Humanoid หรือไม่
+    local char = Players.LocalPlayer.Character
+    local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+    
+    if humanoid and humanoid.WalkSpeed ~= currentWalkSpeed then
+        humanoid.WalkSpeed = currentWalkSpeed
+    end
+end
+
+-- -------------------
+-- 🔽 Slider สำหรับปรับค่าความเร็ว
+-- -------------------
 Tabs.Fly:Slider({
     Title = "ความเร็วเดิน",
     Value = { Min = 16, Max = 150, Default = 16 },
     Callback = function(value)
-        speed = value
+        currentWalkSpeed = value -- อัปเดตตัวแปรความเร็วทันที
+
+        -- ถ้า Toggle เปิดอยู่ ให้ใช้ค่าใหม่ทันที (Real-time update)
+        if walkSpeedToggle then
+            setSpeed(currentWalkSpeed) 
+        end
     end
 })
 
+-- -------------------
+-- 🔘 Toggle เปิด/ปิด ความเร็วเดิน
+-- -------------------
 Tabs.Fly:Toggle({
     Title = "เปิด/ปิด ความเร็วเดิน",
     Value = false,
     Callback = function(state)
-        setSpeed(state and speed or 16)
+        walkSpeedToggle = state
+        
+        if state then
+            -- 1. ตั้งค่าความเร็วทันทีที่เปิด
+            setSpeed(currentWalkSpeed) 
+
+            -- 2. เริ่ม Loop เพื่อล็อคค่าความเร็ว (Real-time lock)
+            walkSpeedConnection = RunService.Heartbeat:Connect(lockSpeedLoop)
+            
+            -- **Optional:** หากตัวละครตายแล้วเกิดใหม่ ให้ตั้งค่าความเร็วใหม่
+            Players.LocalPlayer.CharacterAdded:Wait() 
+            walkSpeedConnection = Players.LocalPlayer.CharacterAdded:Connect(function(char)
+                if walkSpeedToggle then
+                    char:FindFirstChildOfClass("Humanoid").WalkSpeed = currentWalkSpeed
+                end
+            end)
+
+        else
+            -- 1. หยุด Loop
+            if walkSpeedConnection then
+                walkSpeedConnection:Disconnect()
+                walkSpeedConnection = nil
+            end
+            
+            -- 2. คืนค่าความเร็วเดิม (16)
+            setSpeed(16)
+        end
     end
 })
 
