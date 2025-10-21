@@ -2405,7 +2405,7 @@ local Discord = Info:Paragraph({
         {
             Title = "คัดลอกลิงก์",
             Callback = function()
-                setclipboard("https://discord.gg/zHMEUZrHZ6")
+                setclipboard("https://discord.gg/JtMCHtxRVb")
                 WindUI:Notify({
                     Title = "📋 คัดลอกสำเร็จ",
                     Content = "คัดลอกลิงก์ Discord แล้ว!",
