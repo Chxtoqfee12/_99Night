@@ -869,10 +869,10 @@ local function bringItemsByPlayerTP(itemNames, originalPosition)
 end
 
 local Window = WindUI:CreateWindow({
-    Title = "Dual Hub",
+    Title = "Dual Hub V2.2.1",
     Icon = "rbxassetid://115670808395939", 
     Author = "99 Night in the Forest | Free Version",
-    Folder = "Dual Hub V2.2.1",
+    Folder = "Dual Hub",
     Size = UDim2.fromOffset(500, 350),
     Transparent = getgenv().TransparencyEnabled,
     Theme = "Purple",
