@@ -1151,7 +1151,7 @@ local function chopAuraLoop()
                                     CFrame.new(-2.962610244751, 4.5547881126404, -75.950843811035)
                                 )
                             end)
-                            task.wait(0.5)
+                            task.wait(0.1)
                         end
                     end)
                 end
