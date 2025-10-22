@@ -112,11 +112,11 @@ local junkItems = {"Tyre", "Bolt", "Broken Fan", "Broken Microwave", "Sheet Meta
 local selectedJunkItems = {}
 local fuelItems = {"Log", "Chair", "Coal", "Fuel Canister", "Oil Barrel"}
 local selectedFuelItems = {}
-local foodItems = {"Cake", "Cooked Steak", "Cooked Morsel", "Ribs", "Salmon", "Cooked Salmon", "Cooked Ribs", "Mackerel", "Cooked Mackerel", "Steak", "Morsel", "Berry", "Carrot"}
+local foodItems = {"Cake", "Cooked Steak", "Cooked Morsel", "Ribs", "Cooked Salmon", "Cooked Ribs", "Mackerel", "Cooked Mackerel", "Steak", "Morsel", "Berry", "Carrot"}
 local selectedFoodItems = {}
 local medicalItems = {"Bandage", "MedKit"}
 local selectedMedicalItems = {}
-local equipmentItems = {"Revolver", "Rifle", "Old Flashlight", "Leather Body", "Iron Body", "Revolver Ammo", "Rifle Ammo", "Giant Sack", "Good Sack", "Strong Axe", "Good Axe"}
+local equipmentItems = {"Revolver", "Rifle", "Old Flashlight", "Strong Flashlight", "Leather Body", "Iron Body", "Revolver Ammo", "Rifle Ammo", "Giant Sack", "Good Sack", "Strong Axe", "Good Axe", "Spear"}
 local selectedEquipmentItems = {}
 
 local isCollecting = false
