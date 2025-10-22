@@ -869,19 +869,15 @@ Window:SelectTab(1)
 -- ==============================
 -- 🔥 อัปเกรดกองไฟอัตโนมัติ
 -- ==============================
-Tabs.Tp:Section({ Title = "สแกนแผนที่", Icon = "map" })
+Tabs.Auto:Section({ Title = "สแกนแผนที่ เพื่อให้ของเกิด [จำเป็น]", Icon = "map" })
 
-Tabs.Tp:Toggle({
-    Title = "สแกนแผนที่ (จำเป็น)",
+Tabs.Auto:Toggle({
+    Title = "สแกนแผนที่ (Fire Spiral to 1400, Hyper Fast)",
     Default = false,
     Callback = function(state)
         scan_map = state
 
         if not state then
-            -- ตรวจสอบว่ามีการเปิด toggle ก่อนแล้วค่อยเรียก tp1()
-            if type(tp1) == "function" and scan_map_was_on then
-                tp1()
-            end
             scan_map_was_on = false
             return
         else
@@ -895,51 +891,62 @@ Tabs.Tp:Toggle({
             local hrp = character:WaitForChild("HumanoidRootPart", 3)
             if not hrp then return end
 
-            local map = workspace:FindFirstChild("Map")
-            if not map then return end
-
-            local foliage = map:FindFirstChild("Foliage") or map:FindFirstChild("Landmarks")
-            if not foliage then return end
-
-            while scan_map do
-                local trees = {}
-                for _, obj in ipairs(foliage:GetChildren()) do
-                    if obj.Name == "Small Tree" and obj:IsA("Model") then
-                        local trunk = obj:FindFirstChild("Trunk") or obj.PrimaryPart
-                        if trunk then
-                            table.insert(trees, trunk)
-                        end
-                    end
-                end
-
-                for _, trunk in ipairs(trees) do
-                    if not scan_map then break end
-                    if trunk and trunk.Parent then
-                        local treeCFrame = trunk.CFrame
-                        local rightVector = treeCFrame.RightVector
-                        local targetPosition = treeCFrame.Position + rightVector * 69 + Vector3.new(0, 15, 69)
-                        
-                        hrp.CFrame = CFrame.new(targetPosition)
-
-                        local footPart = Instance.new("Part")
-                        footPart.Size = Vector3.new(10, 1, 10)
-                        footPart.Anchored = true
-                        footPart.CanCollide = true
-                        footPart.Transparency = 1
-                        footPart.BrickColor = BrickColor.new("Bright yellow")
-                        footPart.CFrame = CFrame.new(targetPosition - Vector3.new(0, 3, 0))
-                        footPart.Parent = workspace
-
-                        game.Debris:AddItem(footPart, 1)
-
-                        task.wait(0.01)
-                    end
-                end
-                task.wait(0.25)
+            -- วาปไปกองไฟตอนเริ่ม
+            if type(tp1) == "function" then
+                tp1()
             end
+
+            local center = hrp.Position + Vector3.new(0,20,0) -- ลอยขึ้น 20 studs
+            local radius = 5 -- เริ่ม radius
+            local maxRadius = 1400
+            local radialSpeed = 500 -- studs per second (เร็วสุด)
+            local angularSpeed = math.rad(2000) -- rad/s (หมุนเร็วสุด)
+            local dt = 0.005 -- time step เล็กมาก
+
+            while scan_map and radius <= maxRadius do
+                local angle = 0
+                while scan_map and angle < 2*math.pi do
+                    local x = math.cos(angle) * radius
+                    local z = math.sin(angle) * radius
+                    local targetPos = center + Vector3.new(x, 0, z)
+                    hrp.CFrame = CFrame.new(targetPos)
+
+                    -- วาง Foot Part โปร่งเพื่อสังเกต
+                    local footPart = Instance.new("Part")
+                    footPart.Size = Vector3.new(2,1,2)
+                    footPart.Anchored = true
+                    footPart.CanCollide = true
+                    footPart.Transparency = 1
+                    footPart.BrickColor = BrickColor.new("Bright yellow")
+                    footPart.CFrame = CFrame.new(targetPos - Vector3.new(0,3,0))
+                    footPart.Parent = workspace
+                    game.Debris:AddItem(footPart, 1)
+
+                    angle = angle + angularSpeed * dt
+                    task.wait(dt)
+                end
+
+                -- ขยาย radius ตาม speed คงที่
+                radius = radius + radialSpeed * dt
+            end
+
+            -- วาปกลับกองไฟเมื่อ spiral ถึง 1400Stud
+            if type(tp1) == "function" then
+                tp1()
+            end
+
+            scan_map = false
+            scan_map_was_on = false
         end)
     end
 })
+
+
+
+
+
+
+
 
 -- Services
 local Players = game:GetService("Players")
@@ -952,6 +959,7 @@ local choppingTasks = {}
 local killAuraToggle = false
 local chopAuraToggle = false
 local currentammount = 0
+local autoChopToggle = false
 local auraRadius = 70 -- ระยะตัดรอบตัว
 
 
@@ -1165,6 +1173,76 @@ local function chopAuraLoop()
     end
 end
 
+local function collectTrees()
+    local trees = {}
+    local map = Workspace:FindFirstChild("Map")
+    if not map then return trees end
+
+    local function addTrees(parent)
+        for _, obj in ipairs(parent:GetChildren()) do
+            if obj:IsA("Model") then
+                local name = obj.Name
+                if name == "Small Tree" or name == "Snowy Small Tree" or name == "Small Webbed Tree" or name == "Wet Tree" or name == "TreeBig" then
+                    table.insert(trees, obj)
+                end
+            end
+        end
+    end
+
+    if map:FindFirstChild("Foliage") then addTrees(map.Foliage) end
+    if map:FindFirstChild("Landmarks") then addTrees(map.Landmarks) end
+
+    return trees
+end
+
+
+-- ===========================================
+-- Auto Chop Warp (ง่าย)
+-- ===========================================
+local function warpcop()
+    local player = Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart", 3)
+    if not hrp then return end
+
+    while autoChopToggle do
+        local trees = collectTrees()
+        if #trees == 0 then
+            task.wait(1)
+            continue
+        end
+
+        local nearestTree = nil
+        local nearestDist = math.huge
+
+        -- หาไม้ที่อยู่ในระยะ 70
+        for _, tree in ipairs(trees) do
+            local trunk = tree:FindFirstChild("Trunk") or tree.PrimaryPart
+            if trunk then
+                local dist = (trunk.Position - hrp.Position).Magnitude
+                if dist <= auraRadius and dist < nearestDist then
+                    nearestDist = dist
+                    nearestTree = trunk
+                end
+            end
+        end
+
+        if nearestTree then
+            -- ถ้ามีต้นไม้ในระยะ 70 → วาปไป
+            hrp.CFrame = CFrame.new(nearestTree.Position + Vector3.new(3,0,0))
+        else
+            -- ไม่มีต้นไม้ในระยะ → วาปไปหาไม้ใหม่ที่สุ่มเลือก
+            local tree = trees[math.random(1, #trees)]
+            local trunk = tree:FindFirstChild("Trunk") or tree.PrimaryPart
+            if trunk then
+                hrp.CFrame = CFrame.new(trunk.Position + Vector3.new(3,0,0))
+            end
+        end
+
+        task.wait(0.5)
+    end
+end
+
 -- ===========================================
 -- UI: Sections & Toggles
 -- ===========================================
@@ -1188,6 +1266,17 @@ Tabs.Auto:Toggle({
             local tool, _ = getAnyToolWithDamageID(true)
             unequipTool(tool)
             removeAllTreeHighlights() -- ลบ Highlight ของต้นไม้ทั้งหมด
+        end
+    end
+})
+
+Tabs.Auto:Toggle({
+    Title = "ออโต้วาปหาต้นไม้ใช้คู่กับตัดต้นไม้รอบตัว",
+    Default = false,
+    Callback = function(state)
+        autoChopToggle = state
+        if state then
+            task.spawn(warpcop)
         end
     end
 })
