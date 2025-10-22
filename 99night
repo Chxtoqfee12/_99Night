@@ -1,5 +1,3 @@
-
-
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 local Players = game:GetService("Players")
@@ -869,9 +867,9 @@ local function bringItemsByPlayerTP(itemNames, originalPosition)
 end
 
 local Window = WindUI:CreateWindow({
-    Title = "Dual Hub V2.2.1",
+    Title = "Dual Hub",
     Icon = "rbxassetid://115670808395939", 
-    Author = "99 Night in the Forest | Free Version",
+    Author = "99 Night in the Forest",
     Folder = "Dual Hub",
     Size = UDim2.fromOffset(500, 350),
     Transparent = getgenv().TransparencyEnabled,
@@ -905,8 +903,27 @@ local Window = WindUI:CreateWindow({
     },
 })
 
+Window:Tag({
+    Title = "v2.2.1 [BETA]",
+    Color = Color3.fromHex("#30ff6a")
+})
 
-Window:SetToggleKey(Enum.KeyCode.V)
+
+Window:SetToggleKey(Enum.KeyCode.T)
+Window:EditOpenButton({
+    Title = "Dual Hub",
+    Icon = "star",
+    CornerRadius = UDim.new(0,0),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(
+        Color3.fromHex("8B4513"),
+        Color3.fromHex("FFFFFF")
+    ),
+    OnlyMobile = false,
+    Enabled = true,
+    Draggable = true,
+})
+
 
 pcall(function()
     Window:CreateTopbarButton("TransparencyToggle", "eye", function()
@@ -1363,15 +1380,23 @@ local AutoChestToggle = Tabs.Tp:Toggle({
         local player = Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
         if not _G.AutoChestData then
-            _G.AutoChestData = {running = false, originalCFrame = nil}
+            _G.AutoChestData = {
+                running = false,
+                opened = {}, -- จำหีบที่เปิดแล้ว
+                originalCFrame = nil
+            }
         end
 
         local function getChests()
             local chests = {}
             for _, obj in ipairs(workspace:GetDescendants()) do
                 if obj:IsA("Model") and string.find(obj.Name, "Item Chest") then
-                    table.insert(chests, obj)
+                    -- ข้ามหีบที่เปิดไปแล้ว
+                    if not _G.AutoChestData.opened[obj] then
+                        table.insert(chests, obj)
+                    end
                 end
             end
             return chests
@@ -1394,20 +1419,34 @@ local AutoChestToggle = Tabs.Tp:Toggle({
             task.spawn(function()
                 while _G.AutoChestData.running do
                     local chests = getChests()
+                    if #chests == 0 then
+                        _G.AutoChestData.running = false
+                        break
+                    end
+
                     for _, chest in ipairs(chests) do
                         if not _G.AutoChestData.running then break end
+
                         local part = chest.PrimaryPart or chest:FindFirstChildWhichIsA("BasePart")
                         if part then
                             humanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 6, 0)
+
                             local prompts = getPrompt(chest)
                             for _, prompt in ipairs(prompts) do
                                 fireproximityprompt(prompt, math.huge)
                             end
-                            local t = tick()
-                            while _G.AutoChestData.running and tick() - t < 0.75 do task.wait() end
+
+                            _G.AutoChestData.opened[chest] = true -- บันทึกว่าเปิดแล้ว
+
+                            task.wait(0.50) -- เวลาหน่วงระหว่างเปิด
                         end
                     end
                     task.wait(0.1)
+                end
+
+                -- กลับตำแหน่งเดิมเมื่อเสร็จ
+                if _G.AutoChestData.originalCFrame then
+                    humanoidRootPart.CFrame = _G.AutoChestData.originalCFrame
                 end
             end)
         else
