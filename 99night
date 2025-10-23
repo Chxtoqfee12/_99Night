@@ -1568,6 +1568,7 @@ local AutoChestToggle = Tabs.Tp:Toggle({
             -- 🧭 รายชื่อกล่องที่ต้องการให้ระบบเปิดอัตโนมัติ
             local chestNames = {
                 "Item Chest",
+				"Stronghold Diamond Chest",
                 "Volcanic Chest"
             }
 
