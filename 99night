@@ -1552,27 +1552,44 @@ local AutoChestToggle = Tabs.Tp:Toggle({
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
+        -- ตัวแปรหลัก
         if not _G.AutoChestData then
             _G.AutoChestData = {
                 running = false,
-                opened = {}, -- จำหีบที่เปิดแล้ว
+                opened = {}, -- จำหีบที่เปิดไปแล้ว
                 originalCFrame = nil
             }
         end
 
+        -- ✅ ฟังก์ชันดึงรายชื่อหีบทั้งหมดที่อยู่ใน workspace
         local function getChests()
             local chests = {}
+            
+            -- 🧭 รายชื่อกล่องที่ต้องการให้ระบบเปิดอัตโนมัติ
+            local chestNames = {
+                "Item Chest",
+                "Volcanic Chest"
+            }
+
             for _, obj in ipairs(workspace:GetDescendants()) do
-                if obj:IsA("Model") and string.find(obj.Name, "Item Chest") then
-                    -- ข้ามหีบที่เปิดไปแล้ว
-                    if not _G.AutoChestData.opened[obj] then
-                        table.insert(chests, obj)
+                if obj:IsA("Model") then
+                    -- ตรวจสอบชื่อว่ามีคำใดคำหนึ่งใน chestNames
+                    for _, name in ipairs(chestNames) do
+                        if string.find(obj.Name, name) then
+                            -- ถ้ายังไม่ถูกเปิด
+                            if not _G.AutoChestData.opened[obj] then
+                                table.insert(chests, obj)
+                            end
+                            break -- เจอชื่อที่ตรงแล้ว ข้ามไปหาวัตถุถัดไป
+                        end
                     end
                 end
             end
+
             return chests
         end
 
+        -- ✅ ฟังก์ชันหาปุ่ม ProximityPrompt ของแต่ละหีบ
         local function getPrompt(model)
             local prompts = {}
             for _, obj in ipairs(model:GetDescendants()) do
@@ -1583,10 +1600,12 @@ local AutoChestToggle = Tabs.Tp:Toggle({
             return prompts
         end
 
+        -- ✅ เริ่มทำงานเมื่อกดเปิด Toggle
         if v then
             if _G.AutoChestData.running then return end
             _G.AutoChestData.running = true
             _G.AutoChestData.originalCFrame = humanoidRootPart.CFrame
+
             task.spawn(function()
                 while _G.AutoChestData.running do
                     local chests = getChests()
@@ -1600,27 +1619,31 @@ local AutoChestToggle = Tabs.Tp:Toggle({
 
                         local part = chest.PrimaryPart or chest:FindFirstChildWhichIsA("BasePart")
                         if part then
+                            -- ย้ายไปตำแหน่งหีบ
                             humanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 6, 0)
 
+                            -- เปิดหีบ
                             local prompts = getPrompt(chest)
                             for _, prompt in ipairs(prompts) do
                                 fireproximityprompt(prompt, math.huge)
                             end
 
-                            _G.AutoChestData.opened[chest] = true -- บันทึกว่าเปิดแล้ว
+                            -- จำว่าเปิดแล้ว
+                            _G.AutoChestData.opened[chest] = true
 
-                            task.wait(0.50) -- เวลาหน่วงระหว่างเปิด
+                            task.wait(0.5) -- หน่วงเวลาเล็กน้อยระหว่างเปิดแต่ละหีบ
                         end
                     end
                     task.wait(0.1)
                 end
 
-                -- กลับตำแหน่งเดิมเมื่อเสร็จ
+                -- ✅ กลับตำแหน่งเดิมหลังทำงานเสร็จ
                 if _G.AutoChestData.originalCFrame then
                     humanoidRootPart.CFrame = _G.AutoChestData.originalCFrame
                 end
             end)
         else
+            -- ✅ หยุดทำงานและกลับตำแหน่งเดิม
             _G.AutoChestData.running = false
             if _G.AutoChestData.originalCFrame then
                 humanoidRootPart.CFrame = _G.AutoChestData.originalCFrame
@@ -1628,6 +1651,7 @@ local AutoChestToggle = Tabs.Tp:Toggle({
         end
     end
 })
+
 
 
 
@@ -1647,7 +1671,7 @@ _G.selectedTarget = "Campfire"
 _G.isCollecting = false
 
 -- รายการไอเทม
-_G.junkItems = {"Tyre","Old Radio","Broken Microwave","Broken Fan","Sheet Metal","Bolt", "Metal Chair","Old Car Engineer","Washing Machine","Cultist Gem","Gem of the Forest Fragment"}
+_G.junkItems = {"Tyre","Old Radio","Broken Microwave","Broken Fan","Sheet Metal","Bolt", "Metal Chair","Old Car Engine","Washing Machine","Cultist Gem","Gem of the Forest Fragment"}
 _G.fuelItems = {"Sapling","Log","Chair","Coal","Fuel Canister","Biofuel","Oil Barrel","Cultist","Crossbow Cultist"}
 _G.foodItems = {"Cake","Ribs","Steak","Morsel","Berry","Carrot","Chilli","Corn","Pumpkin","Apple"}
 _G.foodcookItems = {"Cooked Morsel","Cooked Steak","Cake","Stew","Hearty Stew","Seafood Chower","Steak Dinner","Pumpkin Soup","BBQ Ribs","Carrot Cake"}
