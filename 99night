@@ -1687,7 +1687,7 @@ _G.equipmentItems = {
     "Revolver", "Revolver Ammo", "Rifle", "Rifle Ammo", "Tatcal Shotgun", "Shotgun Ammo",
     "Kunai", "Ray Gun", "Laser Cannon", "Crossbow",
 }
-_G.specialItems = {"Bunny Foot","Lucky Charm","Mystic Orb"}
+_G.specialItems = {"Bunny Foot","Wolf Pelt","Alpha Wolf Pelt","Coin Stack"}
 
 -- เก็บตัวเลือกที่เลือก
 _G.selectedJunkItems, _G.selectedFuelItems, _G.selectedFoodItems = {},{},{}
