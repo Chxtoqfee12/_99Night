@@ -111,7 +111,7 @@ local Window = WindUI:CreateWindow({
     Icon = "rbxassetid://115670808395939",
     Author = "99 Night in the Forest",
     Folder = "Dual Hub",
-    Size = UDim2.fromOffset(500, 350),
+    Size = UDim2.fromOffset(650, 500),
     Transparent = getgenv().TransparencyEnabled,
     Theme = "Purple",
     Resizable = true,
@@ -165,8 +165,20 @@ task.spawn(function()
 end)
 ------------------------------------------------------------
 
--- 🔘 ปุ่ม Toggle UI
 Window:SetToggleKey(Enum.KeyCode.T)
+Window:EditOpenButton({
+    Title = "Dual Hub",
+    Icon = "star",
+    CornerRadius = UDim.new(0,0),
+    StrokeThickness = 2,
+    Color = ColorSequence.new(
+        Color3.fromHex("8B4513"),
+        Color3.fromHex("FFFFFF")
+    ),
+    OnlyMobile = false,
+    Enabled = true,
+    Draggable = true,
+})
 
 -- 👁️ ปุ่มโปร่งใส
 pcall(function()
@@ -256,10 +268,25 @@ local Discord = Info:Paragraph({
     }
 })
 
--- 🔔 แจ้งเตือนตอนเริ่มรัน
-WindUI:Notify({
-    Title = "⚙️ Dual Hub Loaded!",
-    Content = "สคริปต์โหลดสำเร็จและพร้อมใช้งาน",
-    Duration = 3,
-    Icon = "check-circle"
-})
+------------------------------------------------------------
+-- ⚠️ แจ้งเตือนซ้ำแบบเดิม (ทุก 1 วิ)
+------------------------------------------------------------
+local function notifyRunInGame()
+    WindUI:Notify({
+        Title = "⚠️ แจ้งเตือน",
+        Content = "กรุณารันในเกม!",
+        Duration = 1,
+        Icon = "alert-circle"
+    })
+end
+
+-- แจ้งเตือนทันทีตอนเริ่ม
+notifyRunInGame()
+
+-- แจ้งเตือนซ้ำทุก 1 วินาที
+task.spawn(function()
+    while true do
+        notifyRunInGame()
+        task.wait(1)
+    end
+end)
