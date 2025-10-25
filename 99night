@@ -714,7 +714,7 @@ local Window = WindUI:CreateWindow({
     Icon = "rbxassetid://115670808395939", 
     Author = "99 Night in the Forest",
     Folder = "Dual Hub",
-    Size = UDim2.fromOffset(500, 350),
+    Size = UDim2.fromOffset(650, 500),
     Transparent = getgenv().TransparencyEnabled,
     Theme = "Purple",
     Resizable = true,
@@ -746,10 +746,65 @@ local Window = WindUI:CreateWindow({
     },
 })
 
-Window:Tag({
-    Title = "v3.3.5 [BETA]",
+------------------------------------------------------------
+-- 🟡 FPS & Ping แบบเรียลไทม์บน Tag Bar
+------------------------------------------------------------
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
+
+local tag = Window:Tag({
+    Title = "v3.3.5 [BETA] | 🟡 Ping: 0ms | 🟡 FPS: 0",
     Color = Color3.fromHex("#30ff6a")
 })
+
+-- ฟังก์ชันอ่าน Ping
+local function getPing()
+    local ok, net = pcall(function() return Stats.Network.ServerStatsItem end)
+    if ok and net then
+        local dataPing = net:FindFirstChild("Data Ping")
+        if dataPing then
+            return math.floor(dataPing:GetValue())
+        end
+    end
+    return nil
+end
+
+-- คำนวณ FPS
+local fpsCount, fpsValue = 0, 0
+RunService.RenderStepped:Connect(function()
+    fpsCount += 1
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        fpsValue = fpsCount
+        fpsCount = 0
+        local ping = getPing() or "N/A"
+
+        local titleText = string.format(
+            "v3.5.8 [BETA]  |  Ping: %s ms  |  FPS: %d",
+            tostring(ping),
+            fpsValue
+        )
+
+        -- พยายามอัปเดตข้อความ tag (รองรับหลาย lib)
+        local success = pcall(function()
+            if tag.Update then
+                tag:Update({ Title = titleText })
+            elseif tag.Set then
+                tag:Set(titleText)
+            elseif tag.SetTitle then
+                tag:SetTitle(titleText)
+            elseif tag.UpdateTitle then
+                tag:UpdateTitle(titleText)
+            end
+        end)
+
+        if not success then
+        end
+    end
+end)
+------------------------------------------------------------
 
 
 Window:SetToggleKey(Enum.KeyCode.T)
@@ -791,10 +846,8 @@ pcall(function()
                 Duration = 3,
                 Icon = "eye-off"
             })
-            print(" Transparency = true")
+            print("Transparency = true")
         end
-        
-        -- Debug: Print current state
         print("Debug - Current Transparency state:", getgenv().TransparencyEnabled)
     end, 990)
 end)
@@ -888,13 +941,18 @@ Tabs.Auto:Toggle({
             local center = hrp.Position + Vector3.new(0,20,0) -- ลอยขึ้น 20 studs
             local radius = 5 -- เริ่ม radius
             local maxRadius = 1400
-            local radialSpeed = 500 -- studs per second (เร็วสุด)
-            local angularSpeed = math.rad(2000) -- rad/s (หมุนเร็วสุด)
             local dt = 0.005 -- time step เล็กมาก
 
             while scan_map and radius <= maxRadius do
                 local angle = 0
                 while scan_map and angle < 2*math.pi do
+                    -- ปรับความเร็วตาม radius
+                    local maxLinearSpeed = 500 -- speed สูงสุดตอนใกล้ center
+                    local linearSpeed = math.clamp(maxLinearSpeed - radius*0.2, 50, maxLinearSpeed)
+                    
+                    -- update angle โดยใช้ speed คงที่
+                    angle = angle + (linearSpeed / radius) * dt
+
                     local x = math.cos(angle) * radius
                     local z = math.sin(angle) * radius
                     local targetPos = center + Vector3.new(x, 0, z)
@@ -911,12 +969,11 @@ Tabs.Auto:Toggle({
                     footPart.Parent = workspace
                     game.Debris:AddItem(footPart, 1)
 
-                    angle = angle + angularSpeed * dt
                     task.wait(dt)
                 end
 
                 -- ขยาย radius ตาม speed คงที่
-                radius = radius + radialSpeed * dt
+                radius = radius + 2.5
             end
 
             -- วาปกลับกองไฟเมื่อ spiral ถึง 1400Stud
@@ -929,6 +986,7 @@ Tabs.Auto:Toggle({
         end)
     end
 })
+
 
 
 
@@ -2399,7 +2457,7 @@ Tabs.Anti:Toggle({
                         remote:InvokeServer(ram)
                     end
                 end)
-                task.wait(0.0001)
+                task.wait(0.0000001)
             end)
         else
             if ramLoop then
@@ -2426,7 +2484,7 @@ Tabs.Anti:Toggle({
                         remote:InvokeServer(deer)
                     end
                 end)
-                task.wait(0.0001)
+                task.wait(0.000001)
             end)
         else
             if deerLoop then
@@ -2453,7 +2511,7 @@ Tabs.Anti:Toggle({
                         remote:InvokeServer(owl)
                     end
                 end)
-                task.wait(0.0001)
+                task.wait(0.000001)
             end)
         else
             if owlLoop then
