@@ -2009,8 +2009,44 @@ Tabs.br:Button({
     end
 })
 
+Tabs.Fly:Section({ Title = "cyborg", Icon = "user" })
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
 
+local RapidFireEnabled = false
+
+-- Toggle Rapid Fire
+Tabs.Fly:Toggle({
+    Title = "ปืน Cyborg ไม่มีคูลดาวน์",
+    Value = false,
+    Callback = function(state)
+        RapidFireEnabled = state
+    end
+})
+
+-- Loop รัวแบบ dynamic
+task.spawn(function()
+    while true do
+        if RapidFireEnabled then
+            local char = player.Character
+            local head = char and char:FindFirstChild("Head")
+            local target = workspace:FindFirstChild("Characters") and workspace.Characters:FindFirstChild("Alien")
+            local remote = ReplicatedStorage:FindFirstChild("RemoteEvents") and ReplicatedStorage.RemoteEvents:FindFirstChild("NPCProjectileDamagePlayer")
+
+            if char and head and target and remote then
+                local args = {char, head, target}
+                pcall(function()
+                    remote:FireServer(unpack(args))
+                end)
+            end
+            task.wait(0.01) -- yield ให้ toggle ทำงาน
+        else
+            task.wait(0.1)
+        end
+    end
+end)
 
 Tabs.Fly:Section({ Title = "การตั้งค่าผู้เล่น", Icon = "user" })
 
