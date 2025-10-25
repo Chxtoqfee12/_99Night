@@ -1,24 +1,32 @@
--- กำหนด GameId ที่อนุญาต
+-- 🔒 จำกัดให้ทำงานเฉพาะเกมที่กำหนด
 local allowedGameId = 79546208627805
 
--- ถ้า GameId ไม่ตรง หยุดการทำงานตรงนี้
 if game.PlaceId ~= allowedGameId then
-    return  -- หยุดโหลด UI ทั้งหมด
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "⛔ เกมไม่ตรง!",
+        Text = "สคริปต์นี้ใช้ได้เฉพาะในเกมที่กำหนดเท่านั้น",
+        Duration = 5
+    })
+    return
 end
+
+-- 🪶 โหลด WindUI
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
+-- 📦 Services
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local Lighting = game:GetService("Lighting")
-local effect = Lighting:FindFirstChild("VibrantEffect")
-local vibrantEffect = Lighting:FindFirstChild("VibrantEffect")
+local Stats = game:GetService("Stats")
 local RunService = game:GetService("RunService")
 
+-- 🌅 ตั้งค่าแสง
 Lighting.ClockTime = 14
 Lighting.GlobalShadows = false
 
+-- 🎨 ธีมทั้งหมด
 WindUI:AddTheme({
     Name = "Dark",
     Accent = "#18181b",
@@ -93,121 +101,122 @@ WindUI:AddTheme({
 
 WindUI:SetNotificationLower(true)
 
-local themes = {"Dark", "Light", "Gray", "Blue", "Green", "Purple"}
-local currentThemeIndex = 1
-
 if not getgenv().TransparencyEnabled then
     getgenv().TransparencyEnabled = true
 end
 
+-- 🪟 สร้างหน้าต่างหลัก
 local Window = WindUI:CreateWindow({
     Title = "Dual Hub",
-    Icon = "rbxassetid://115670808395939", 
+    Icon = "rbxassetid://115670808395939",
     Author = "99 Night in the Forest",
     Folder = "Dual Hub",
     Size = UDim2.fromOffset(500, 350),
     Transparent = getgenv().TransparencyEnabled,
     Theme = "Purple",
     Resizable = true,
-    SideBarWidth = 150,
-    BackgroundImageTransparency = 0.8,
-    HideSearchBar = false,
-    ScrollBarEnabled = true,
-
-    User = {
-        Enabled = true,
-        Anonymous = false,
-        Callback = function()
-            currentThemeIndex = currentThemeIndex + 1
-            if currentThemeIndex > #themes then
-                currentThemeIndex = 1
-            end
-            
-            local newTheme = themes[currentThemeIndex]
-            WindUI:SetTheme(newTheme)
-           
-            WindUI:Notify({
-                Title = "Theme Changed",
-                Content = "Switched to " .. newTheme .. " theme!",
-                Duration = 2,
-                Icon = "palette"
-            })
-            print("Switched to " .. newTheme .. " theme")
-        end,
-    },
+    Side = "Left"
 })
 
-Window:Tag({
-    Title = "v3.3.5 [BETA]",
+------------------------------------------------------------
+-- 🟡 FPS & Ping แบบเรียลไทม์บน Tag Bar
+------------------------------------------------------------
+local tag = Window:Tag({
+    Title = "v3.5.8 [BETA] | 🟡 Ping: 0ms | 🟡 FPS: 0",
     Color = Color3.fromHex("#30ff6a")
 })
 
+local function getPing()
+    local ok, net = pcall(function() return Stats.Network.ServerStatsItem end)
+    if ok and net then
+        local dataPing = net:FindFirstChild("Data Ping")
+        if dataPing then
+            return math.floor(dataPing:GetValue())
+        end
+    end
+    return "N/A"
+end
 
+local fpsCount, fpsValue = 0, 0
+RunService.RenderStepped:Connect(function()
+    fpsCount += 1
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        fpsValue = fpsCount
+        fpsCount = 0
+        local ping = getPing()
+
+        local titleText = string.format(
+            "v3.5.8 [BETA]  |  Ping: %s ms  |  FPS: %d",
+            tostring(ping),
+            fpsValue
+        )
+
+        pcall(function()
+            if tag.Update then
+                tag:Update({ Title = titleText })
+            elseif tag.SetTitle then
+                tag:SetTitle(titleText)
+            end
+        end)
+    end
+end)
+------------------------------------------------------------
+
+-- 🔘 ปุ่ม Toggle UI
 Window:SetToggleKey(Enum.KeyCode.T)
-Window:EditOpenButton({
-    Title = "Dual Hub",
-    Icon = "star",
-    CornerRadius = UDim.new(0,0),
-    StrokeThickness = 2,
-    Color = ColorSequence.new(
-        Color3.fromHex("8B4513"),
-        Color3.fromHex("FFFFFF")
-    ),
-    OnlyMobile = false,
-    Enabled = true,
-    Draggable = true,
-})
 
-
+-- 👁️ ปุ่มโปร่งใส
 pcall(function()
     Window:CreateTopbarButton("TransparencyToggle", "eye", function()
         if getgenv().TransparencyEnabled then
             getgenv().TransparencyEnabled = false
             pcall(function() Window:ToggleTransparency(false) end)
-            
             WindUI:Notify({
                 Title = "Transparency", 
                 Content = "Transparency disabled",
                 Duration = 3,
                 Icon = "eye"
             })
-            print("Transparency = false")
         else
             getgenv().TransparencyEnabled = true
             pcall(function() Window:ToggleTransparency(true) end)
-            
             WindUI:Notify({
                 Title = "Transparency",
                 Content = "Transparency enabled", 
                 Duration = 3,
                 Icon = "eye-off"
             })
-            print(" Transparency = true")
         end
-        
-        -- Debug: Print current state
-        print("Debug - Current Transparency state:", getgenv().TransparencyEnabled)
     end, 990)
 end)
 
+-- 🧭 ปรับปุ่มเปิด UI
 Window:EditOpenButton({
     Title = "Dual Hub",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
-    Color = ColorSequence.new(Color3.fromRGB(30, 30, 30), Color3.fromRGB(255, 255, 255)),
+    Color = ColorSequence.new(
+        Color3.fromRGB(30, 30, 30),
+        Color3.fromRGB(255, 255, 255)
+    ),
     Draggable = true,
 })
 
+------------------------------------------------------------
+-- 📑 แท็บ "ข้อมูล"
+------------------------------------------------------------
 local Tabs = {}
-
 Tabs.Info = Window:Tab({
     Title = "ข้อมูล",
     Icon = "badge-info",
     Desc = "Dual"
 })
 
-Info = Tabs["Info"]
+local Info = Tabs.Info
 
 Info:Divider()
 
@@ -231,9 +240,6 @@ Info:Divider()
 local Discord = Info:Paragraph({
     Title = "Discord",
     Desc = "เข้าร่วม Discord ของเราเพื่อรับสคริปต์เพิ่มเติม!",
-    Image = "",
-    ImageSize = 0,
-    Locked = false,
     TextXAlignment = "Center",
     Buttons = {
         {
@@ -250,23 +256,10 @@ local Discord = Info:Paragraph({
     }
 })
 
--- ฟังก์ชันแจ้งเตือน
-local function notifyRunInGame()
-    WindUI:Notify({
-        Title = "⚠️ แจ้งเตือน",
-        Content = "กรุณารันในเกม!",
-        Duration = 1,
-        Icon = "alert-circle"
-    })
-end
-
--- แจ้งเตือนทันทีตอนรันสคริปต์
-notifyRunInGame()
-
--- loop แจ้งเตือนตลอดเวลา ทุก 1 วินาที
-task.spawn(function()
-    while true do
-        notifyRunInGame()
-        task.wait(1) -- รอ 1 วินาทีแล้วแจ้งเตือนใหม่
-    end
-end)
+-- 🔔 แจ้งเตือนตอนเริ่มรัน
+WindUI:Notify({
+    Title = "⚙️ Dual Hub Loaded!",
+    Content = "สคริปต์โหลดสำเร็จและพร้อมใช้งาน",
+    Duration = 3,
+    Icon = "check-circle"
+})
