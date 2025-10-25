@@ -914,7 +914,7 @@ Window:SelectTab(1)
 Tabs.Auto:Section({ Title = "สแกนแผนที่", Icon = "map" })
 
 Tabs.Auto:Toggle({
-    Title = "สแกนแผนที่ เพื่อให้ของเกิด [จำเป็น]",
+    Title = "สแกนแผนที่ เพื่อให้ของเกิด [เร็วขึ้น]",
     Default = false,
     Callback = function(state)
         scan_map = state
@@ -933,32 +933,30 @@ Tabs.Auto:Toggle({
             local hrp = character:WaitForChild("HumanoidRootPart", 3)
             if not hrp then return end
 
-            -- วาปไปกองไฟตอนเริ่ม
             if type(tp1) == "function" then
                 tp1()
             end
 
-            local center = hrp.Position + Vector3.new(0,20,0) -- ลอยขึ้น 20 studs
-            local radius = 5 -- เริ่ม radius
+            local center = hrp.Position + Vector3.new(0,20,0)
+            local radius = 60
             local maxRadius = 1400
-            local dt = 0.005 -- time step เล็กมาก
+            local dt = 0.005
 
             while scan_map and radius <= maxRadius do
                 local angle = 0
                 while scan_map and angle < 2*math.pi do
-                    -- ปรับความเร็วตาม radius
-                    local maxLinearSpeed = 500 -- speed สูงสุดตอนใกล้ center
-                    local linearSpeed = math.clamp(maxLinearSpeed - radius*0.2, 50, maxLinearSpeed)
-                    
-                    -- update angle โดยใช้ speed คงที่
+                    -- ปรับ speed แบบ dynamic curve
+                    local maxSpeed = 1800
+                    local minSpeed = 1000
+                    local linearSpeed = math.clamp(maxSpeed * (1 - radius/maxRadius)^0.5, minSpeed, maxSpeed)
+
                     angle = angle + (linearSpeed / radius) * dt
 
                     local x = math.cos(angle) * radius
                     local z = math.sin(angle) * radius
-                    local targetPos = center + Vector3.new(x, 0, z)
+                    local targetPos = center + Vector3.new(x,0,z)
                     hrp.CFrame = CFrame.new(targetPos)
 
-                    -- วาง Foot Part โปร่งเพื่อสังเกต
                     local footPart = Instance.new("Part")
                     footPart.Size = Vector3.new(2,1,2)
                     footPart.Anchored = true
@@ -972,11 +970,9 @@ Tabs.Auto:Toggle({
                     task.wait(dt)
                 end
 
-                -- ขยาย radius ตาม speed คงที่
                 radius = radius + 2.5
             end
 
-            -- วาปกลับกองไฟเมื่อ spiral ถึง 1400Stud
             if type(tp1) == "function" then
                 tp1()
             end
@@ -986,7 +982,6 @@ Tabs.Auto:Toggle({
         end)
     end
 })
-
 
 
 
@@ -1627,6 +1622,7 @@ local AutoChestToggle = Tabs.Tp:Toggle({
             local chestNames = {
                 "Item Chest",
 				"Stronghold Diamond Chest",
+				"Snow Chest",
                 "Volcanic Chest"
             }
 
