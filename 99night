@@ -937,8 +937,8 @@ Tabs.Auto:Toggle({
                 tp1()
             end
 
-            local center = hrp.Position + Vector3.new(0,20,0)
-            local radius = 60
+            local center = hrp.Position + Vector3.new(0,50,0)
+            local radius = 100
             local maxRadius = 1400
             local dt = 0.005
 
@@ -946,9 +946,9 @@ Tabs.Auto:Toggle({
                 local angle = 0
                 while scan_map and angle < 2*math.pi do
                     -- ปรับ speed แบบ dynamic curve
-                    local maxSpeed = 1800
-                    local minSpeed = 1000
-                    local linearSpeed = math.clamp(maxSpeed * (1 - radius/maxRadius)^0.5, minSpeed, maxSpeed)
+                    local maxSpeed = 5400
+                    local minSpeed = 4000
+					local linearSpeed = math.clamp(maxSpeed * (1 - radius/maxRadius)^0.1, minSpeed, maxSpeed)
 
                     angle = angle + (linearSpeed / radius) * dt
 
@@ -970,7 +970,7 @@ Tabs.Auto:Toggle({
                     task.wait(dt)
                 end
 
-                radius = radius + 2.5
+                radius = radius + 8.5
             end
 
             if type(tp1) == "function" then
