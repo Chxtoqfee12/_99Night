@@ -2,13 +2,23 @@
 local allowedGameId = 79546208627805
 
 if game.PlaceId ~= allowedGameId then
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "⛔ เกมไม่ตรง!",
         Text = "สคริปต์นี้ใช้ได้เฉพาะในเกมที่กำหนดเท่านั้น",
         Duration = 5
     })
+
+    -- หน่วงเวลาเล็กน้อยก่อนเตะออก (เพื่อให้เห็นข้อความ)
+    task.wait(2)
+
+    -- เตะออกจากเซิร์ฟเวอร์
+    LocalPlayer:Kick("⛔ เกมไม่ตรง! กรุณาเข้าร่วมเซิร์ฟเวอร์ที่ถูกต้องเท่านั้น.")
     return
 end
+
 
 -- 🪶 โหลด WindUI
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
